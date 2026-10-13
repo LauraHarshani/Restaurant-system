@@ -1,9 +1,9 @@
 const Contact = () => {
   return (
-    <div>
-      <h1>Contact Page</h1>
+    <div className="pt-32 px-6 md:px-[50px] min-h-screen">
+      <h1 className="text-3xl font-bold font-serif">Contact Page</h1>
     </div>
-  )
-}
+  );
+};
 
 export default Contact;

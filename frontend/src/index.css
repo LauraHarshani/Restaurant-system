@@ -1,15 +1,19 @@
-/* Reset default browser margins and padding */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-logo: "Hepta Slab", serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-brand-orange: #ff6b00;
+  --color-brand-dark: #1e1e1e;
+  --color-brand-footer: #100202;
+  --color-brand-icon-bg: #261912;
 }
 
 body {
-  width: 100%;
   min-height: 100vh;
-  background-color: #1E1E1E; /* Dark background matching the Figma design */
-  color: white; /* Default text color */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  font-family: "Playfair Display", Georgia, serif; /* Classic serif font family */
+  background-color: #1e1e1e;
+  color: #ffffff;
+  overflow-x: hidden;
+  font-family: var(--font-serif);
 }

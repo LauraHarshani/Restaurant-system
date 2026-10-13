@@ -1,90 +1,44 @@
-import { NavLink } from 'react-router-dom'; // Using NavLink for active state styling
+import { NavLink } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 
 const Navbar = () => {
-  // Function to dynamically change color based on the active route
-  const navLinkStyle = ({ isActive }) => {
-    return {
-      ...styles.link,
-      color: isActive ? '#ff6b00' : '#ffffff', // Orange if active, otherwise white
-    };
-  };
+  // Function to dynamically style active route
+  const navLinkClass = ({ isActive }) =>
+    `no-underline text-base font-bold font-serif transition-colors duration-300 ${
+      isActive ? 'text-[#ff6b00]' : 'text-white hover:text-[#ff6b00]'
+    }`;
 
   return (
-    <nav style={styles.nav}>
+    <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 md:px-[50px] py-[22px] bg-[#1e1e1e]/50 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20">
       {/* Logo Section */}
-      <div style={styles.logoContainer}>
-        <span style={styles.fireIcon}>🔥</span>
-        <span style={styles.logoText}>
-          Flame <span style={styles.logoOrange}>&Crust</span>
+      <div className="flex items-center gap-2 text-[28px] font-bold text-white font-logo">
+        <span>🔥</span>
+        <span>
+          Flame <span className="text-[#ff6b00]">&Crust</span>
         </span>
       </div>
 
       {/* Links Section */}
-      <div style={styles.linksContainer}>
-        <NavLink to="/" style={navLinkStyle}>Home</NavLink>
-        <NavLink to="/about" style={navLinkStyle}>About</NavLink>
-        <NavLink to="/order" style={navLinkStyle}>Menu</NavLink> 
-        <NavLink to="/chefs" style={navLinkStyle}>Chefs</NavLink>
-        <NavLink to="/contact" style={navLinkStyle}>Contact</NavLink>
+      <div className="flex items-center gap-6 md:gap-[70px]">
+        <NavLink to="/" className={navLinkClass}>Home</NavLink>
+        <NavLink to="/about" className={navLinkClass}>About</NavLink>
+        <NavLink to="/order" className={navLinkClass}>Menu</NavLink>
+        <NavLink to="/chefs" className={navLinkClass}>Chefs</NavLink>
+        <NavLink to="/contact" className={navLinkClass}>Contact</NavLink>
       </div>
 
       {/* Cart Section */}
-      <div style={styles.cartContainer}>
-        <button style={styles.cartButton}>🛒</button>
+      <div className="flex items-center">
+        <button
+          type="button"
+          aria-label="Shopping Cart"
+          className="text-white hover:text-[#ff6b00] cursor-pointer hover:scale-110 transition-all duration-200"
+        >
+          <ShoppingCart className="w-6 h-6" />
+        </button>
       </div>
     </nav>
   );
-};
-
-// Styles Section
-const styles = {
-  nav: {
-    display: 'flex',
-    justifyContent: 'space-between', // Distributes space evenly between Logo, Links, and Cart
-    alignItems: 'center',
-    padding: '25px 50px',
-    backgroundColor: 'transparent', // Always transparent as requested
-    position: 'fixed', // Keeps it fixed at the top seamlessly over the hero section
-    top: 0,
-    left: 0,
-    width: '100%',
-    zIndex: 1000, // Ensures navbar stays on top of all page content
-    boxSizing: 'border-box'
-  },
-  logoContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: 'white',
-    // Classic serif font family to match the design
-    fontFamily: '"Playfair Display", Georgia, serif' 
-  },
-  logoOrange: {
-    color: '#ff6b00' // Orange color for the '&Crust' part
-  },
-  linksContainer: {
-    display: 'flex',
-    gap: '70px', // Increased spacing for a balanced look in the middle
-  },
-  link: {
-    textDecoration: 'none',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    // Font family for the menu links
-    fontFamily: '"Playfair Display", Georgia, serif',
-    transition: 'color 0.3s ease' // Smooth transition effect for color changes
-  },
-  cartButton: {
-    background: 'transparent',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    borderRadius: '50%',
-    padding: '10px 12px',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '16px'
-  }
 };
 
 export default Navbar;
