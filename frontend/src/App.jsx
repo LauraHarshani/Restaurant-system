@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+
+import CustomerLayout from "./layouts/CustomerLayout";
+// import AdminLayout from "./layouts/AdminLayout";
+
 import Home from './pages/Home';
 import About from './pages/About';
 import Chefs from './pages/Chefs';
@@ -10,30 +12,32 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 
+import AdminLogin from './pages/admin/AdminLogin';
+
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-[#1e1e1e] text-white font-sans selection:bg-[#ff6b00] selection:text-white">
-        {/* Navbar*/}
-        <Navbar />
+      <Routes>
+        {/*Admin Login*/}
+        <Route path='/admin/login' element={<AdminLogin/>}/>
 
-        {/* Main Content*/}
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/chefs" element={<Chefs />} />
-            <Route path="/order" element={<Order />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path='/cart' element={<Cart/>}/>
-            <Route path='/checkout' element={<Checkout/>}/>
-            <Route path='/order-confirmation' element={<OrderConfirmation/>}/>
-          </Routes>
-        </main>
+        {/*Customer Layout*/}
+        <Route element={<CustomerLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/chefs" element={<Chefs />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path='/cart' element={<Cart/>}/>
+          <Route path='/checkout' element={<Checkout/>}/>
+          <Route path='/order-confirmation' element={<OrderConfirmation/>}/>
+        </Route>
 
-        {/* Footer*/}
-        <Footer />
-      </div>
+        {/*Admin Layout*/}
+        
+
+      </Routes>
+        
     </BrowserRouter>
   );
 }
