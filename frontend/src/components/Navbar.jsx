@@ -29,13 +29,13 @@ const Navbar = () => {
 
       {/* Cart Section */}
       <div className="flex items-center">
-        <button
-          type="button"
+        <NavLink
+          to="/cart"
           aria-label="Shopping Cart"
           className="text-white hover:text-[#ff6b00] cursor-pointer hover:scale-110 transition-all duration-200"
         >
           <ShoppingCart className="w-6 h-6" />
-        </button>
+        </NavLink>
       </div>
     </nav>
   );
