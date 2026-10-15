@@ -7,6 +7,8 @@ import Chefs from './pages/Chefs';
 import Order from './pages/Order';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/order" element={<Order />} />
             <Route path="/contact" element={<Contact />} />
             <Route path='/cart' element={<Cart/>}/>
+            <Route path='/checkout' element={<Checkout/>}/>
+            <Route path='/order-confirmation' element={<OrderConfirmation/>}/>
           </Routes>
         </main>
 
