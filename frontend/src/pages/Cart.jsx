@@ -5,6 +5,7 @@ import {
   Trash2,
   ShoppingCart,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const initialItems = [
   {
@@ -37,6 +38,9 @@ const sizes = ["Small", "Medium", "Large"];
 const deliveryFee = 200;
 
 export default function Cart() {
+
+  const navigate = useNavigate();
+
   const [items, setItems] = useState(initialItems);
 
   const subtotal = useMemo(
@@ -86,7 +90,7 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
-    // Connect this to your checkout page when it is implemented.
+    
     console.log("Proceeding to checkout", items);
   };
 
@@ -272,7 +276,7 @@ export default function Cart() {
 
               <button
                 type="button"
-                onClick={handleCheckout}
+                onClick={()=> navigate("/checkout")}
                 className="mt-7 w-full rounded-lg bg-gradient-to-r from-[#F47A20] to-[#E5252A] px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#F47A20] focus:ring-offset-2 focus:ring-offset-[#1B1B1B]"
               >
                 Proceed to Checkout
