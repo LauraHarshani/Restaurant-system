@@ -113,7 +113,7 @@ export default function OrderConfirmation() {
             className="mx-auto text-green-500"
           />
 
-          <h1 className="mt-5 font-serif text-3xl font-bold sm:text-4xl">
+          <h1 className="mt-5 text-3xl font-bold sm:text-4xl">
             Thank You for Your Order!
           </h1>
 
@@ -139,9 +139,12 @@ export default function OrderConfirmation() {
           {/* Receipt heading */}
           <div className="flex flex-col justify-between gap-4 border-b border-white/20 pb-5 sm:flex-row sm:items-center">
             <div>
-              <h2 className="font-serif text-2xl font-bold">
-                Flame <span className="text-[#F47A20]">&amp;Crust</span>
-              </h2>
+                <div className="flex items-center gap-2 text-[22px] font-bold text-white font-logo">
+                    <span>🔥</span>
+                    <span>
+                        Flame <span className="text-[#ff6b00]">&Crust</span>
+                    </span>
+                </div>
               <p className="mt-1 text-sm text-gray-400">
                 Order Receipt
               </p>
