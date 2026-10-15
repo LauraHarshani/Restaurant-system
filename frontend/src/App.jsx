@@ -13,7 +13,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-[#1e1e1e] text-white font-serif selection:bg-[#ff6b00] selection:text-white">
+      <div className="min-h-screen flex flex-col bg-[#1e1e1e] text-white font-sans selection:bg-[#ff6b00] selection:text-white">
         {/* Navbar*/}
         <Navbar />
 
