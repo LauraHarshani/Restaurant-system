@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import CustomerLayout from "./layouts/CustomerLayout";
-// import AdminLayout from "./layouts/AdminLayout";
+import AdminLayout from "./layouts/AdminLayout";
 
 import Home from './pages/Home';
 import About from './pages/About';
@@ -13,6 +13,8 @@ import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 
 import AdminLogin from './pages/admin/AdminLogin';
+import AdminHome from './pages/admin/AdminHome';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -34,7 +36,10 @@ function App() {
         </Route>
 
         {/*Admin Layout*/}
-        
+        <Route path='/admin' element={<AdminLayout/>}>
+          <Route path='dashboard' element={<AdminDashboard/>}/>
+          <Route path='home' element={<AdminHome/>}/>
+        </Route>
 
       </Routes>
         
