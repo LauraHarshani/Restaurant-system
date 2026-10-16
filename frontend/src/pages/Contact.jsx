@@ -295,10 +295,6 @@ export default function Contact() {
                     type="submit"
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#ff7417] to-[#e5252a] px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#ff6b00]/10 transition-all duration-300 hover:-translate-y-1 hover:brightness-110 hover:shadow-xl hover:shadow-[#ff6b00]/25 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:ring-offset-2 focus:ring-offset-[#171717]"
                   >
-                    <Send
-                      size={17}
-                      className="transition-transform duration-300 group-hover:translate-x-1"
-                    />
                     Send Message
                   </button>
                 </form>
