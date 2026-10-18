@@ -16,6 +16,8 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminHome from './pages/admin/AdminHome';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminAbout from './pages/admin/AdminAbout';
+import AdminMessages from './pages/admin/AdminMessages';
+import AdminContact from './pages/admin/AdminContact';
 
 
 function App() {
@@ -42,6 +44,8 @@ function App() {
           <Route path='dashboard' element={<AdminDashboard/>}/>
           <Route path='home' element={<AdminHome/>}/>
           <Route path='about' element={<AdminAbout/>}/>
+          <Route path='messages' element={<AdminMessages/>}/>
+          <Route path='edit-contact' element={<AdminContact/>}/>
         </Route>
 
       </Routes>
