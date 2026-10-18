@@ -124,7 +124,7 @@ export default function AdminLogin() {
                 </div>
 
                 <h2 className="text-3xl font-bold tracking-tight">
-                  Admin Sign In
+                  Sign In
                 </h2>
 
                 <p className="mt-3 text-sm leading-6 text-gray-500">

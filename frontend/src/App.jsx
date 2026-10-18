@@ -15,8 +15,8 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminHome from './pages/admin/AdminHome';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminMessages from './pages/admin/AdminMessages';
-import AdminContact from './pages/admin/AdminContact';
+import AdminAbout from './pages/admin/AdminAbout';
+
 
 function App() {
   return (
@@ -41,8 +41,7 @@ function App() {
         <Route path='/admin' element={<AdminLayout/>}>
           <Route path='dashboard' element={<AdminDashboard/>}/>
           <Route path='home' element={<AdminHome/>}/>
-          <Route path='messages' element={<AdminMessages/>}/>
-          <Route path='edit-contact' element={<AdminContact/>}/>
+          <Route path='about' element={<AdminAbout/>}/>
         </Route>
 
       </Routes>
