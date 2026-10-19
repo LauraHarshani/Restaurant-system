@@ -1,20 +1,19 @@
-import { Outlet } from "react-router-dom";
-import AdminSidebar from "../components/admin/AdminSidebar";
-import AdminNavbar from "../components/admin/AdminNavbar";
+﻿import { Outlet, Navigate } from "react-router-dom";
+import AdminSidebar from "../components/AdminSidebar";
+import AdminHeader from "../components/AdminHeader";
 
 export default function AdminLayout() {
+  const isAuth = localStorage.getItem("adminToken");
+  if (!isAuth) return <Navigate to="/admin/login" replace />;
+  
   return (
-    // Prevent the whole page from scrolling by setting full screen height and hiding overflow
-    <div className="flex h-screen overflow-hidden bg-[#f6f6f6] font-sans text-gray-900">
+    <div className="flex min-h-screen bg-[#F8F9FA]">
       <AdminSidebar />
-
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <AdminNavbar />
-
-        {/* Allow only this main content section to scroll vertically */}
-        <main className="flex-1 overflow-y-auto p-5 sm:p-8">
+      <div className="flex-1 flex flex-col h-screen overflow-y-auto">
+        <AdminHeader />
+        <div className="p-8 flex-1">
           <Outlet />
-        </main>
+        </div>
       </div>
     </div>
   );

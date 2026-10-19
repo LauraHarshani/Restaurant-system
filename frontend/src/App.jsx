@@ -1,58 +1,58 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+﻿import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CartProvider } from "./context/CartContext";
+import { ChefProvider } from "./context/ChefContext";
+import { MenuProvider } from "./context/MenuContext";
 
-import CustomerLayout from "./layouts/CustomerLayout";
+import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 
-import Home from './pages/Home';
-import About from './pages/About';
-import Chefs from './pages/Chefs';
-import Order from './pages/Order';
-import Contact from './pages/Contact';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderConfirmation from './pages/OrderConfirmation';
+import Home from "./pages/Home";
+import Chefs from "./pages/Chefs";
+import ChefDetails from "./pages/ChefDetails";
+import Menu from "./pages/Menu";
 
-import AdminLogin from './pages/admin/AdminLogin';
-import AdminHome from './pages/admin/AdminHome';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminAbout from './pages/admin/AdminAbout';
-import AdminMessages from './pages/admin/AdminMessages';
-import AdminContact from './pages/admin/AdminContact';
-import AdminProfile from './pages/admin/AdminProfile';
-
+import AdminLogin from "./pages/admin/AdminLogin";
+import Dashboard from "./pages/admin/Dashboard";
+import ChefManagement from "./pages/admin/ChefManagement";
+import AddChef from "./pages/admin/AddChef";
+import MenuManagement from "./pages/admin/MenuManagement";
+import AddDish from "./pages/admin/AddDish";
+import OrderManagement from "./pages/admin/OrderManagement";
+import CreateOrder from "./pages/admin/CreateOrder";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/*Admin Login*/}
-        <Route path='/admin/login' element={<AdminLogin/>}/>
+    <ChefProvider>
+      <MenuProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<PublicLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/chefs" element={<Chefs />} />
+                <Route path="/chefs/:id" element={<ChefDetails />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/order" element={<Menu />} />
+              </Route>
 
-        {/*Customer Layout*/}
-        <Route element={<CustomerLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/chefs" element={<Chefs />} />
-          <Route path="/order" element={<Order />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path='/cart' element={<Cart/>}/>
-          <Route path='/checkout' element={<Checkout/>}/>
-          <Route path='/order-confirmation' element={<OrderConfirmation/>}/>
-        </Route>
+              <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/*Admin Layout*/}
-        <Route path='/admin' element={<AdminLayout/>}>
-          <Route path='dashboard' element={<AdminDashboard/>}/>
-          <Route path='home' element={<AdminHome/>}/>
-          <Route path='about' element={<AdminAbout/>}/>
-          <Route path='messages' element={<AdminMessages/>}/>
-          <Route path='edit-contact' element={<AdminContact/>}/>
-          <Route path='profile' element={<AdminProfile/>}/>
-        </Route>
-
-      </Routes>
-        
-    </BrowserRouter>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<Dashboard />} />
+                <Route path="/admin/chefs" element={<ChefManagement />} />
+                <Route path="/admin/chefs/add" element={<AddChef />} />
+                <Route path="/admin/chefs/edit/:id" element={<AddChef />} />
+                <Route path="/admin/menu" element={<MenuManagement />} />
+                <Route path="/admin/menu/add" element={<AddDish />} />
+                <Route path="/admin/menu/edit/:id" element={<AddDish />} />
+                <Route path="/admin/orders" element={<OrderManagement />} />
+                <Route path="/admin/orders/create" element={<CreateOrder />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </MenuProvider>
+    </ChefProvider>
   );
 }
 
