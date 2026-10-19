@@ -10,6 +10,7 @@ const pageTitles = {
   "/admin/about": "About",
   "/admin/chefs": "Chefs",
   "/admin/messages": "Messages",
+  "/admin/edit-contact": "Contacts",
   "/admin/profile": "Profile",
 };
 
