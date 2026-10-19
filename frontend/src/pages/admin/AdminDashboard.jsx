@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   CalendarDays, Download, Plus, ReceiptText, UtensilsCrossed, ChefHat, 
   Mail, MessageSquare, ArrowRight, CornerDownLeft, MonitorSmartphone, 
@@ -6,6 +7,7 @@ import {
 } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState('oct 1 – oct 30, 2026');
   const [activeTab, setActiveTab] = useState('All');
@@ -35,10 +37,6 @@ const AdminDashboard = () => {
     return matchesTab && matchesSearch;
   });
 
-  const handleNavigate = (path) => {
-    window.location.href = path;
-  };
-
   const handleExportExcel = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Order ID,Time,Customer,Items,Total,Status\n";
@@ -57,7 +55,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20 relative">
+    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20 relative bg-white">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header Section */}
@@ -109,7 +107,11 @@ const AdminDashboard = () => {
               <Download size={14} className="text-gray-500" /> Export Summy
             </button>
 
-            <button className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20">
+            {/* New Manual Order button routing to Create Order page */}
+            <button 
+              onClick={() => navigate('/admin/orders/create')}
+              className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20"
+            >
               <Plus size={14} /> New Manual Order
             </button>
           </div>
@@ -208,7 +210,7 @@ const AdminDashboard = () => {
                    </h2>
                    <p className="text-xs text-gray-500 mt-1">Latest contact form inquiries & feedback</p>
                 </div>
-                <button onClick={() => handleNavigate('/admin/messages')} className="text-xs font-bold text-[#ff5100] hover:text-[#e04800] flex items-center gap-1 transition-colors active:scale-95">
+                <button onClick={() => navigate('/admin/messages')} className="text-xs font-bold text-[#ff5100] hover:text-[#e04800] flex items-center gap-1 transition-colors active:scale-95">
                   View All Messages (4) <ArrowRight size={14} />
                 </button>
              </div>
@@ -369,7 +371,7 @@ const AdminDashboard = () => {
            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                  <h2 
-                   onClick={() => handleNavigate('/admin/orders')} 
+                   onClick={() => navigate('/admin/orders')} 
                    className="text-lg font-extrabold text-gray-900 cursor-pointer hover:text-[#ff5100] transition-colors"
                  >
                    Recent Orders
