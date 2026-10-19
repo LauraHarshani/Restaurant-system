@@ -67,8 +67,8 @@ const AdminAbout = () => {
     <div className="bg-gray-50 min-h-screen p-6 font-sans text-gray-900 pb-20">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white border border-gray-200 p-8 rounded-xl shadow-sm gap-4">
+        {/* Header Section (Clean & Flat Style) */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -78,7 +78,7 @@ const AdminAbout = () => {
             <p className="text-gray-500 text-sm mt-1">Manage brand heritage narrative, core culinary mission values, operational schedules, and flagship photography gallery.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => handleAction('Discard Draft')} className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95">
+            <button type="button" onClick={() => handleAction('Discard Draft')} className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 shadow-sm">
               <RefreshCw size={16} /> Discard Draft
             </button>
             <button type="button" onClick={() => handleSave('Publish All')} className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20">
@@ -111,7 +111,6 @@ const AdminAbout = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
-            {/* Rich Content Textarea */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-gray-900">Story Text (Rich Content)</label>
               <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
@@ -132,7 +131,6 @@ const AdminAbout = () => {
               </div>
             </div>
 
-            {/* Story Media Asset */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-gray-900">Story Media Asset</label>
               <div className="h-[268px] bg-[#1e1e24] rounded-xl relative overflow-hidden flex flex-col justify-between p-4 shadow-md border border-gray-200">
@@ -155,7 +153,6 @@ const AdminAbout = () => {
             </div>
           </div>
 
-          {/* Key Metrics / Showcase Stats */}
           <div className="pt-4 space-y-3">
             <label className="block text-xs font-semibold text-gray-900">Key Metrics / Showcase Stats</label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -210,7 +207,7 @@ const AdminAbout = () => {
           </div>
         </div>
 
-        {/* 2. Mission Manager — What Drives Us (Updated with Pencil/Edit Icon) */}
+        {/* 2. Mission Manager — What Drives Us */}
         <div className="bg-white border border-gray-200 rounded-xl p-8 space-y-6 shadow-sm">
           <div className="flex justify-between items-center border-b border-gray-100 pb-4">
             <div>
@@ -223,8 +220,6 @@ const AdminAbout = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Pillar 1 */}
             <div className="bg-[#f8f9fc] border border-gray-100 p-5 rounded-xl space-y-4">
               <div className="flex justify-between items-center">
                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-[#ff5100] font-bold">🔥</div>
@@ -246,7 +241,6 @@ const AdminAbout = () => {
               </div>
             </div>
 
-            {/* Pillar 2 */}
             <div className="bg-[#f8f9fc] border border-gray-100 p-5 rounded-xl space-y-4">
               <div className="flex justify-between items-center">
                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">⭐</div>
@@ -268,7 +262,6 @@ const AdminAbout = () => {
               </div>
             </div>
 
-            {/* Pillar 3 */}
             <div className="bg-[#f8f9fc] border border-gray-100 p-5 rounded-xl space-y-4">
               <div className="flex justify-between items-center">
                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600 font-bold">⏱️</div>
@@ -289,7 +282,6 @@ const AdminAbout = () => {
                 <span className="text-[#ff5100]">Live in View</span>
               </div>
             </div>
-
           </div>
 
           <div className="flex justify-end pt-4 border-t border-gray-100">

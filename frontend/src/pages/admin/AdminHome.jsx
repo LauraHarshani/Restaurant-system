@@ -11,7 +11,6 @@ const AdminHome = () => {
     cta2Label: 'Explore Menu',
     cta2Url: '/',
     
-    // Stats & Highlights Data Updated
     highlight1Title: 'Customer Rating',
     highlight1Value: '4.9',
     highlight1Sub: '',
@@ -24,7 +23,6 @@ const AdminHome = () => {
     highlight3Value: '100%',
     highlight3Sub: '',
     
-    // Limited Offer Banner Data Updated
     promoActive: true,
     promoHeadline: '20% off your first online order',
     promoCode: 'GLOW20',
@@ -34,7 +32,6 @@ const AdminHome = () => {
     promoStart: '07/10/2026',
     promoEnd: '06/11/2026',
     
-    // Bottom CTA Data
     bottomHeading: 'READY FOR THE WOOD-FIRED EXPERIENCE?',
     bottomSubtext: 'Reserve your spot or order online now. Every dish is a masterpiece born in the fire.',
     bottomBtn1Label: 'Reserve a Table',
@@ -43,7 +40,6 @@ const AdminHome = () => {
     bottomBtn2Url: '/'
   });
 
-  // Featured Dishes Data
   const featuredDishesList = [
     { id: 1, slot: '01', name: 'The Blaze Classic Burger', price: 'Rs. 1,900.00', image: '/Images/food 2.jpeg' },
     { id: 2, slot: '02', name: 'Wood-Fired Glazed Wings', price: 'Rs. 1,200.00', image: '/Images/food 4.jpeg' },
@@ -68,12 +64,11 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20">
-      {/* Updated to max-w-7xl matching the About page size */}
+    <div className="bg-gray-50 min-h-screen p-6 font-sans text-gray-900 pb-20">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white border border-gray-200 p-8 rounded-xl shadow-sm gap-4">
+        {/* Header Section (Messages page style - Clean & Flat) */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -83,7 +78,7 @@ const AdminHome = () => {
             <p className="text-gray-500 text-sm mt-1">Curate hero storytelling, real-time highlights, active seasonal promotions, curated dishes, and conversion touchpoints.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => handleAction('Discard Draft')} className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95">
+            <button type="button" onClick={() => handleAction('Discard Draft')} className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 shadow-sm">
               <RefreshCw size={16} /> Discard Draft
             </button>
             <button type="button" onClick={() => handleSave('Publish All')} className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20">
@@ -114,7 +109,6 @@ const AdminHome = () => {
               <textarea name="tagline" rows="2" value={homeData.tagline} onChange={handleChange} className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:border-[#ff5100] focus:ring-1 focus:ring-[#ff5100] outline-none resize-none transition-all" />
             </div>
 
-            {/* Hero Background Visual Asset Card (Video Implementation) */}
             <div>
                <label className="block text-xs font-semibold text-gray-900 mb-1.5">Hero Background Visual Asset (Video)</label>
                <div className="bg-[#fff9f5] border border-[#ffeadb] rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -132,7 +126,7 @@ const AdminHome = () => {
                     </div>
                   </div>
                 </div>
-                {/* Action Buttons */}
+                
                 <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
                   <button type="button" onClick={() => handleAction('Crop / Focal Point')} className="bg-white border border-gray-200 text-[#0f172a] text-xs px-3 py-2 rounded-lg font-semibold hover:bg-gray-50 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
                     <SlidersHorizontal size={14} className="text-gray-500" /> Crop / Focal Point
@@ -147,7 +141,6 @@ const AdminHome = () => {
               </div>
             </div>
 
-            {/* CTA Links Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
               <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-3">
                 <div className="flex justify-between items-center">
