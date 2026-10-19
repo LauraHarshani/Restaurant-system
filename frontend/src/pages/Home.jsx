@@ -60,8 +60,9 @@ const Home = () => {
             >
               Reserve a Table
             </motion.button>
+            {/* Explore Menu button updated to /menu */}
             <motion.button 
-              onClick={() => navigate('/order')}
+              onClick={() => navigate('/menu')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="border border-white/50 bg-transparent text-white px-8 py-3 rounded-full font-bold text-lg hover:border-[#ff5100] transition-all duration-300"
@@ -160,9 +161,10 @@ const Home = () => {
             ))}
           </div>
 
+          {/* View Full Menu button updated to /menu */}
           <div className="text-center mt-10 mb-8">
             <motion.button 
-              onClick={() => navigate('/order')}
+              onClick={() => navigate('/menu')}
               whileHover={{ scale: 1.1, y: -5 }}
               whileTap={{ scale: 0.95 }}
               className="text-white font-bold text-lg hover:text-[#ff5100] transition-all flex items-center justify-center gap-2 mx-auto"
@@ -187,8 +189,9 @@ const Home = () => {
             >
               Reserve a Table
             </motion.button>
+            {/* Order Online button updated to /menu */}
             <motion.button 
-              onClick={() => navigate('/order')}
+              onClick={() => navigate('/menu')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="border border-white/50 bg-transparent text-white px-8 py-3.5 rounded-full font-bold hover:border-[#ff5100] transition-all duration-300"
