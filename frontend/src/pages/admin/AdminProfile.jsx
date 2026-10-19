@@ -352,10 +352,6 @@ export default function AdminProfile() {
             </div>
           </form>
         </section>
-
-        <p className="pb-2 text-center text-xs text-gray-400">
-          Flame & Crust · Admin Profile
-        </p>
       </div>
     </div>
   );
