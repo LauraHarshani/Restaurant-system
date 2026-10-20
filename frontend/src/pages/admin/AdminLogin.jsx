@@ -7,7 +7,6 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
-  ArrowRight,
   Flame,
 } from "lucide-react";
 
