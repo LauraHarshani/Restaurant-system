@@ -64,7 +64,7 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6 font-sans text-gray-900 pb-20">
+    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header Section (Messages page style - Clean & Flat) */}

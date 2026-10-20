@@ -31,6 +31,7 @@ import MenuManagement from "./pages/admin/MenuManagement";
 import AddDish from "./pages/admin/AddDish";
 import OrderManagement from "./pages/admin/OrderManagement";
 import CreateOrder from "./pages/admin/CreateOrder";
+import AdminProfile from './pages/admin/AdminProfile';
 
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
                 <Route path='menu/edit/:id' element={<AddDish/>}/>
                 <Route path='orders' element={<OrderManagement/>}/>
                 <Route path='orders/create' element={<CreateOrder/>}/>
+                <Route path='profile' element={<AdminProfile/>}/>
               </Route>
 
             </Routes>

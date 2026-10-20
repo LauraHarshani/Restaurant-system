@@ -222,7 +222,7 @@ export default function AdminMessages() {
   };
 
   return (
-    <div className="min-h-full bg-[#f7f7f8] p-4 text-gray-900 sm:p-7 lg:p-9">
+    <div className="min-h-full p-4 text-gray-900 sm:p-7 lg:p-9">
       {/* Page heading */}
       <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>

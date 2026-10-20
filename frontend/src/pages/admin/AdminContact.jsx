@@ -118,7 +118,7 @@ export default function AdminContact() {
   };
 
   return (
-    <div className="min-h-full bg-[#f7f7f8] p-4 text-gray-900 sm:p-7 lg:p-9">
+    <div className="min-h-full p-4 text-gray-900 sm:p-7 lg:p-9">
       {/* Page heading and actions */}
       <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
         <div>
