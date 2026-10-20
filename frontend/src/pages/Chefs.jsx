@@ -7,7 +7,7 @@ export default function Chefs() {
 
   return (
     <div className="bg-[#120D0B] min-h-screen">
-      <section className="relative h-[65vh] flex items-center justify-center text-center overflow-hidden">
+      <section className="relative flex min-h-[420px] justify-center overflow-hidden px-5 text-center sm:min-h-[480px]">
         <img
           src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1600"
           alt="Chefs Background"
@@ -15,14 +15,11 @@ export default function Chefs() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#120D0B]/80 via-[#120D0B]/60 to-[#120D0B]"></div>
         
-        <div className="relative z-10 px-6 max-w-2xl mx-auto mt-12">
-          <p className="text-[#D97736] text-[10px] font-bold tracking-[0.3em] mb-4 uppercase">
-            THE PEOPLE BEHIND THE FLAME
-          </p>
-          <h1 className="font-display text-6xl md:text-7xl font-bold text-[#F5F2EB] mb-5">
+        <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-32 sm:pt-36">
+          <h1 className="mb-4 font-display text-5xl font-bold leading-tight tracking-wide text-[#F5F2EB] md:text-7xl">
             Our Chefs
           </h1>
-          <p className="text-[#A8A29E] text-sm md:text-base">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-200 sm:text-lg">
             Meet the hands and hearts behind our wood-fired perfection.
           </p>
         </div>
