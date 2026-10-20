@@ -138,7 +138,7 @@ const About = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Location Box */}
+          {/* Location Box with Dark Themed Map */}
           <motion.div 
             whileHover={{ y: -8, borderColor: "#F97316", boxShadow: "0px 10px 25px rgba(249,115,22,0.25)" }}
             transition={{ duration: 0.3 }}
@@ -151,14 +151,35 @@ const About = () => {
                 123 Road<br />
                 Colombo 03.
               </p>
+
+              {/* Dark Theme Styled Google Map */}
+              <div className="w-full h-52 rounded-xl overflow-hidden mb-6 border border-white/10 bg-[#120905] relative shadow-lg">
+                <iframe
+                  title="Flame & Crust Location"
+                  src="https://maps.google.com/maps?q=Colombo%2003,%20Sri%20Lanka&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ 
+                    border: 0, 
+                    filter: 'invert(90%) hue-rotate(180deg) brightness(85%) contrast(110%)' 
+                  }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
             </div>
-            <motion.button 
+
+            <motion.a 
+              href="https://maps.google.com/?q=Colombo+03"
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-[#1f120c] border border-white/20 text-white px-6 py-3 rounded-full font-bold text-sm w-fit flex items-center gap-2 hover:border-[#ff5100] transition-all"
             >
               Get Directions <span>→</span>
-            </motion.button>
+            </motion.a>
           </motion.div>
 
           {/* Opening Hours Box */}
@@ -183,7 +204,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* 5. Gallery Section with Optimized Bottom Spacing */}
+      {/* 5. Gallery Section */}
       <section className="pt-20 pb-12 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h4 className="text-[#ff5100] font-bold uppercase tracking-widest mb-2 text-sm">The Gallery</h4>
