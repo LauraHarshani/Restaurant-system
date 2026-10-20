@@ -10,7 +10,7 @@ const About = () => {
     <div className="bg-[#0a0503] text-white min-h-screen font-sans">
       
       {/* 1. Hero Section with Dark Restaurant Atmosphere Video Background */}
-      <section className="relative h-[70vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+      <section className="relative flex min-h-[420px] justify-center overflow-hidden px-5 text-center sm:min-h-[480px]">
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
           <video 
@@ -26,11 +26,11 @@ const About = () => {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-4xl mx-auto mt-16">
-          <h1 className="text-5xl md:text-7xl font-serif font-bold mb-4 tracking-wide">
+        <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-32 sm:pt-36">
+          <h1 className="mb-4 font-display text-5xl font-bold leading-tight tracking-wide text-[#F5F2EB] md:text-7xl">
             OUR STORY
           </h1>
-          <p className="text-gray-300 text-lg md:text-xl font-medium tracking-wide">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-200 sm:text-lg">
             Discover the journey behind our wood-fired perfection
           </p>
         </div>

@@ -90,13 +90,13 @@ export default function Contact() {
 
       <div className="relative z-10">
         {/* Hero Section */}
-        <section className="flex min-h-[280px] items-center justify-center px-5 pb-12 pt-28 sm:min-h-[300px] sm:pt-32">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-4 font-serif text-5xl font-bold tracking-wide text-white md:text-7xl">
+        <section className="flex min-h-[420px] justify-center px-5 text-center sm:min-h-[480px]">
+          <div className="mx-auto w-full max-w-4xl px-6 pt-32 sm:pt-36">
+            <h1 className="mb-4 font-display text-5xl font-bold leading-tight tracking-wide text-[#F5F2EB] md:text-7xl">
               Get In Touch
             </h1>
 
-            <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-gray-200 sm:text-lg">
+            <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-200 sm:text-lg">
               We’d love to hear from you! Whether you have
               questions, need support, or want to learn more
               about our services, our team is here to help.

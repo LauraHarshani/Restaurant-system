@@ -18,7 +18,7 @@ export default function Menu() {
 
   return (
     <div className="bg-[#120D0B] text-[#F5F2EB] min-h-screen">
-      <section className="relative h-[55vh] flex items-center justify-center text-center overflow-hidden">
+      <section className="relative flex min-h-[420px] justify-center overflow-hidden px-5 text-center sm:min-h-[480px]">
         <img
           src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1600"
           alt="Menu Background"
@@ -26,17 +26,14 @@ export default function Menu() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#120D0B]/60 via-[#120D0B]/40 to-[#120D0B]"></div>
         
-        <div className="relative z-10 px-6 max-w-3xl mx-auto mt-10">
-          <p className="text-[#D97736] text-[10px] font-bold tracking-[0.3em] mb-4 uppercase">
-            WOOD-FIRED  FLAME-GRILLED
-          </p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold text-[#F5F2EB] mb-6 leading-tight">
+        <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-32 sm:pt-36">
+          <h1 className="mb-4 font-display text-5xl font-bold leading-tight tracking-wide text-[#F5F2EB] md:text-7xl">
             From our flame to your table.
           </h1>
-          <p className="text-[#A8A29E] text-sm md:text-base mb-4">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-200 sm:text-lg">
             Browse the menu, find your favourites and make it a feast. Freshly prepared. Always served.
           </p>
-          <div className="flex items-center justify-center gap-2 text-[12px] text-[#D97736]">
+          <div className="mt-4 flex items-center justify-center gap-2 text-[12px] text-[#D97736]">
             <span className="w-1.5 h-1.5 bg-[#D97736] rounded-full animate-pulse"></span>
             <span>Open Daily: 12pm  11pm</span>
           </div>

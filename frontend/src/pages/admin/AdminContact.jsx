@@ -118,11 +118,11 @@ export default function AdminContact() {
   };
 
   return (
-    <div className="min-h-full p-4 text-gray-900 sm:p-7 lg:p-9">
+    <div className="min-h-full text-gray-900">
       {/* Page heading and actions */}
       <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             Contact Information
           </h1>
 
