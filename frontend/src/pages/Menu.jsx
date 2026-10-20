@@ -3,6 +3,49 @@ import { useMenu } from "../context/MenuContext";
 import FoodCard from "../components/FoodCard";
 import { Search, UtensilsCrossed } from "lucide-react";
 
+const homeFeaturedDishes = [
+  {
+    id: "home-featured-1",
+    name: "The Blaze Classic Burger",
+    description: "Flame-seared beef, melted cheddar, and our smoky house sauce.",
+    price: 1900,
+    category: "Burgers",
+    image: "/Images/food 2.jpeg",
+    available: true,
+    featured: false,
+  },
+  {
+    id: "home-featured-2",
+    name: "Wood-Fired Glazed Wings",
+    description: "Tender wings coated in a sticky, smoky signature glaze.",
+    price: 1200,
+    category: "Wings",
+    image: "/Images/food 4.jpeg",
+    available: true,
+    featured: false,
+  },
+  {
+    id: "home-featured-3",
+    name: "Wood-Fired Supreme Pizza",
+    description: "A crisp, blistered crust topped with our generous supreme mix.",
+    price: 2500,
+    category: "Pizza",
+    image: "/Images/food 5.jpeg",
+    available: true,
+    featured: false,
+  },
+  {
+    id: "home-featured-4",
+    name: "The Volcano Double Burger",
+    description: "Two juicy beef patties layered with bold, fiery flavor.",
+    price: 2200,
+    category: "Burgers",
+    image: "/Images/food1.jpeg",
+    available: true,
+    featured: false,
+  },
+];
+
 export default function Menu() {
   const { menuItems } = useMenu();
   const [activeCategory, setActiveCategory] = useState("All dishes");
@@ -10,7 +53,7 @@ export default function Menu() {
 
   const categories = ["All dishes", "Burgers", "Pizza", "Wings"];
 
-  const filtered = menuItems.filter((item) => {
+  const filtered = [...menuItems, ...homeFeaturedDishes].filter((item) => {
     const matchCat = activeCategory === "All dishes" || item.category === activeCategory;
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
@@ -79,7 +122,7 @@ export default function Menu() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {filtered.map((item) => (
             <FoodCard key={item.id} item={item} />
           ))}
