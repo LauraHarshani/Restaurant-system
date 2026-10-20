@@ -42,11 +42,8 @@ export default function AdminLogin() {
         password === DEMO_PASSWORD
       ) {
         
-        if (rememberMe) {
-          sessionStorage.setItem("demoAdminLoggedIn", "true");
-        } else {
-          sessionStorage.setItem("demoAdminLoggedIn", "true");
-        }
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem("adminToken", "demo");
 
         navigate("/admin/dashboard");
       } else {

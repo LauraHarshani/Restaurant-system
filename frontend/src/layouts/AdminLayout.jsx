@@ -3,7 +3,9 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminNavbar from "../components/admin/AdminNavbar";
 
 export default function AdminLayout() {
-  const isAuth = localStorage.getItem("adminToken");
+  const isAuth =
+    localStorage.getItem("adminToken") ||
+    sessionStorage.getItem("adminToken");
   if (!isAuth) return <Navigate to="/admin/login" replace />;
   
   return (
