@@ -197,12 +197,12 @@ export default function AdminProfile() {
   );
 
   return (
-    <div className="min-h-full bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl space-y-6">
+    <div className="min-h-full">
+      <div className="w-full space-y-6">
 
         {/* Page heading */}
         <div>
-          <h2 className="text-2xl font-bold text-[#1e1e1e] sm:text-3xl">
+          <h2 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             Profile
           </h2>
           <p className="mt-2 text-sm text-gray-500">

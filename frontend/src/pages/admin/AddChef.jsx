@@ -18,8 +18,8 @@ export default function AddChef() {
 
   return (
     <div className="text-[#1C1917]">
-      <Link to="/admin/chefs" className="text-gray-500 text-[13px] flex items-center gap-1 mb-4 hover:text-[#F97316] transition w-fit"><ChevronLeft size={14} /> Chef Management / {isEditMode ? "Edit Chef" : "Add Chef"}</Link>
-      <div className="mb-8"><h1 className="font-display text-[32px] font-bold text-[#1C1917] mb-1">{isEditMode ? "Edit Chef Profile" : "Add Chef"}</h1><p className="text-gray-500 text-[14px]">{isEditMode ? "Update this chef's details, specialties and availability." : "Create a chef profile and set their role, specialties and kitchen availability."}</p></div>
+      <div className="mb-8"><h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900 mb-1">{isEditMode ? "Edit Chef Profile" : "Add Chef"}</h1><p className="text-gray-500 text-[14px]">{isEditMode ? "Update this chef's details, specialties and availability." : "Create a chef profile and set their role, specialties and kitchen availability."}</p></div>
+      <Link to="/admin/chefs" className="text-gray-500 text-[13px] flex items-center gap-1 mb-6 hover:text-[#F97316] transition w-fit"><ChevronLeft size={14} /> Chef Management / {isEditMode ? "Edit Chef" : "Add Chef"}</Link>
       <form onSubmit={handleSave} className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">

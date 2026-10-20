@@ -55,18 +55,18 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20 relative bg-white">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-full font-sans text-gray-900 pb-20 relative bg-white">
+      <div className="w-full space-y-6">
         
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Dashboard Management</h1>
+            <p className="text-gray-500 text-sm mt-1">Real-time kitchen operations, orders, and public website updates</p>
+            <div className="mt-2 flex items-center gap-2">
               <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span>
               <span className="text-[11px] text-[#10b981] font-bold tracking-wide">Sync Active: POS Oven 01</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard Management</h1>
-            <p className="text-gray-500 text-sm mt-1">Real-time kitchen operations, orders, and public website updates</p>
           </div>
           <div className="flex items-center gap-3 relative">
             <button 

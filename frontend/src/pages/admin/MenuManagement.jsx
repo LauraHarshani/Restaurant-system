@@ -13,7 +13,7 @@ export default function MenuManagement() {
   return (
     <div className="relative">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div><h1 className="font-display text-[32px] font-bold text-[#1C1917]">Your menu, at a glance</h1><p className="text-gray-500 text-[14px] mt-1">Organize dishes, update prices and control what customers can order.</p></div>
+        <div><h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Your menu, at a glance</h1><p className="text-gray-500 text-[14px] mt-1">Organize dishes, update prices and control what customers can order.</p></div>
         <div className="flex gap-3"><button onClick={() => setIsCategoryModalOpen(true)} className="border border-gray-200 bg-white px-4 py-2.5 rounded-lg text-[14px] font-medium text-[#1C1917] flex items-center gap-2 hover:bg-gray-50 transition"><LayoutGrid size={16} /> Manage categories</button><Link to="/admin/menu/add" className="bg-[#F97316] hover:bg-[#EA580C] text-white px-5 py-2.5 rounded-lg text-[14px] font-medium flex items-center gap-2 shadow-sm transition"><Plus size={16} /> Add dish</Link></div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

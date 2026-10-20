@@ -64,18 +64,18 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-full font-sans text-gray-900 pb-20">
+      <div className="w-full space-y-8">
         
         {/* Header Section (Messages page style - Clean & Flat) */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Home Management</h1>
+            <p className="text-gray-500 text-sm mt-1">Curate hero storytelling, real-time highlights, active seasonal promotions, curated dishes, and conversion touchpoints.</p>
+            <div className="mt-2 flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               <span className="text-xs text-green-600 font-semibold">Published (Synced 18m ago)</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Home Management</h1>
-            <p className="text-gray-500 text-sm mt-1">Curate hero storytelling, real-time highlights, active seasonal promotions, curated dishes, and conversion touchpoints.</p>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={() => handleAction('Discard Draft')} className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 shadow-sm">

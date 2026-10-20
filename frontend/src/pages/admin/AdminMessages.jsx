@@ -222,11 +222,11 @@ export default function AdminMessages() {
   };
 
   return (
-    <div className="min-h-full p-4 text-gray-900 sm:p-7 lg:p-9">
+    <div className="min-h-full text-gray-900">
       {/* Page heading */}
       <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">
+          <h2 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             Contact Messages
           </h2>
           <p className="mt-1 text-sm text-gray-500">
