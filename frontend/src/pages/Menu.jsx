@@ -62,12 +62,17 @@ export default function Menu() {
   return (
     <div className="bg-[#120D0B] text-[#F5F2EB] min-h-screen">
       <section className="relative flex min-h-[420px] justify-center overflow-hidden px-5 text-center sm:min-h-[480px]">
-        <img
-          src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1600"
-          alt="Menu Background"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#120D0B]/60 via-[#120D0B]/40 to-[#120D0B]"></div>
+        <div aria-hidden="true" className="absolute inset-0 z-0">
+          <video
+            src="/Videos/restaurant-background4.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-full object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-[#120D0B]" />
+        </div>
         
         <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-32 sm:pt-36">
           <h1 className="mb-4 font-display text-5xl font-bold leading-tight tracking-wide text-[#F5F2EB] md:text-7xl">
