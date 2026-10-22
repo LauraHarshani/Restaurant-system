@@ -1,4 +1,4 @@
-﻿import { Plus } from "lucide-react";
+import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 
 export default function FoodCard({ item }) {
@@ -24,12 +24,15 @@ export default function FoodCard({ item }) {
   }
 
   return (
-    <div className="bg-[#1A1310] rounded-xl overflow-hidden group border border-white/5 flex flex-col sm:flex-row">
-      <div className="relative w-full sm:w-48 h-48 sm:h-auto overflow-hidden shrink-0">
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="overflow-hidden rounded-xl border border-white/10 bg-[#120905] transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,81,0,0.4)]"
+    >
+      <div className="group relative h-56 w-full overflow-hidden">
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition duration-700 opacity-90 group-hover:opacity-100"
+          className="h-full w-full object-cover opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
         />
         {item.available && badgeText && (
           <span className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-md ${badgeColor}`}>
@@ -43,21 +46,20 @@ export default function FoodCard({ item }) {
         )}
       </div>
 
-      <div className="p-5 flex flex-col flex-1 justify-between">
-        <div>
-          <h3 className="text-white font-display text-xl font-bold mb-2">{item.name}</h3>
-          <p className="text-[#A8A29E] text-[12px] mb-4 line-clamp-2">{item.description}</p>
-        </div>
-
-        <div className="flex items-center justify-between mt-auto">
-          <span className="text-[#F5F2EB] font-bold text-[15px]">
-            Rs. {item.price}.00
+      <div className="p-5">
+        <h3 className="mb-4 h-12 text-lg font-bold text-white">{item.name}</h3>
+        <p className="mb-4 line-clamp-2 min-h-8 text-xs text-[#A8A29E]">
+          {item.description}
+        </p>
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-gray-300">
+            Rs.{Number(item.price).toFixed(2)}
           </span>
           
           {item.available ? (
             <button
               onClick={() => addToCart(item)}
-              className="bg-[#D97736] hover:bg-[#c0692d] text-white text-[12px] font-medium px-4 py-1.5 rounded-lg transition active:scale-95 flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#ff7a00] to-[#d12200] px-5 py-1.5 text-sm font-bold text-white transition-all duration-300 hover:shadow-[0_0_10px_2px_rgba(255,122,0,0.4)] active:scale-95"
             >
               + Add
             </button>
@@ -68,6 +70,6 @@ export default function FoodCard({ item }) {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

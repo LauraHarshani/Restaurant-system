@@ -11,7 +11,7 @@ export default function ChefManagement() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div><h1 className="font-display text-[32px] font-bold text-[#1C1917]">Manage your kitchen team</h1><p className="text-gray-500 text-[14px] mt-1">Keep chef profiles, specialties and shift availability up to date.</p></div>
+        <div><h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Manage your kitchen team</h1><p className="text-gray-500 text-[14px] mt-1">Keep chef profiles, specialties and shift availability up to date.</p></div>
         <Link to="/admin/chefs/add" className="bg-[#F97316] hover:bg-[#EA580C] text-white px-5 py-2.5 rounded-lg text-[14px] font-medium flex items-center gap-2 transition shadow-sm"><Plus size={16} /> Add chef</Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

@@ -1,50 +1,51 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   CalendarDays, Download, Plus, ReceiptText, UtensilsCrossed, ChefHat, 
   Mail, MessageSquare, ArrowRight, CornerDownLeft, MonitorSmartphone, 
   Settings, CheckCircle2, RotateCw, Search, ChevronDown, X 
 } from 'lucide-react';
+import { orders as mockOrders } from '../../data/mockData';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState('oct 1 – oct 30, 2026');
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const allOrders = [
-    { id: '#FC-2849', time: '12:42 PM', customer: 'Harshani', details: 'Table 4 • Dine-In', items: '1x Smoked Margherita, 1x Truffle Fries', total: 'Rs.3800', status: 'Preparing' },
-    { id: '#FC-2848', time: '12:35 PM', customer: 'Minindu', details: 'Takeout Counter', items: '2x Spicy Pizza', total: 'Rs.5000', status: 'Preparing' },
-    { id: '#FC-2847', time: '12:18 PM', customer: 'Nirmal', details: 'Delivery • DoorDash', items: '1x Four Cheese Burger', total: 'Rs.2900', status: 'Ready' },
-    { id: '#FC-2846', time: '11:55 AM', customer: 'Sithumini', details: 'Table 2 • Dine-in', items: '1x Tiramisu', total: 'Rs.1000', status: 'Completed' },
-    { id: '#FC-2845', time: '11:20 AM', customer: 'Diluni', details: 'Online Web Order', items: '2x Pepperoni Pizza', total: 'Rs.5800', status: 'Completed' },
-    { id: '#FC-2844', time: '10:45 AM', customer: 'Rovindu', details: 'Phone Order', items: '1x Garlic cheese pizza', total: 'Rs.2500', status: 'Canceled' }
-  ];
+  // Get orders from mockData matching OrderManagement page
+  const dashboardOrders = mockOrders.slice(0, 5).map(order => ({
+    id: order.id,
+    time: order.time,
+    customer: order.customer,
+    details: order.type,
+    items: `${order.items.length} item${order.items.length > 1 ? 's' : ''}`,
+    total: `Rs. ${order.total}.00`,
+    status: order.status
+  }));
 
-  const filteredOrders = allOrders.filter(order => {
+  const filteredOrders = dashboardOrders.filter(order => {
     const matchesTab = 
       activeTab === 'All' ? true :
-      activeTab === 'Preparing' ? order.status === 'Preparing' || order.status === 'Ready' :
-      activeTab === 'Completed' ? order.status === 'Completed' :
-      activeTab === 'Canceled' ? order.status === 'Canceled' : true;
+      activeTab === 'Preparing' ? order.status === 'Preparing' || order.status === 'New' || order.status === 'Ready' :
+      activeTab === 'Completed' ? order.status === 'Delivered' :
+      activeTab === 'Canceled' ? order.status === 'Cancelled' : true;
 
     const matchesSearch = 
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.items.toLowerCase().includes(searchQuery.toLowerCase());
+      order.details.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesTab && matchesSearch;
   });
 
-  const handleNavigate = (path) => {
-    window.location.href = path;
-  };
-
   const handleExportExcel = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Order ID,Time,Customer,Items,Total,Status\n";
+    csvContent += "Order ID,Time,Customer,Type,Items,Total,Status\n";
 
-    allOrders.forEach(row => {
-      csvContent += `"${row.id}","${row.time}","${row.customer}","${row.items}","${row.total}","${row.status}"\n`;
+    dashboardOrders.forEach(row => {
+      csvContent += `"${row.id}","${row.time}","${row.customer}","${row.details}","${row.items}","${row.total}","${row.status}"\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
@@ -57,20 +58,20 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 font-sans text-gray-900 pb-20 relative">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-full font-sans text-gray-900 pb-20 relative bg-white">
+      <div className="w-full space-y-6">
         
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Dashboard Management</h1>
+            <p className="text-gray-500 text-sm mt-1">Real-time kitchen operations, orders, and public website updates</p>
+            <div className="mt-2 flex items-center gap-2">
               <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span>
               <span className="text-[11px] text-[#10b981] font-bold tracking-wide">Sync Active: POS Oven 01</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard Management</h1>
-            <p className="text-gray-500 text-sm mt-1">Real-time kitchen operations, orders, and public website updates</p>
           </div>
-          <div className="flex items-center gap-3 relative">
+          <div className="flex items-center gap-3 relative flex-wrap">
             <button 
               onClick={() => setShowCalendar(!showCalendar)}
               className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95 shadow-sm"
@@ -106,10 +107,13 @@ const AdminDashboard = () => {
               onClick={handleExportExcel}
               className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95 shadow-sm"
             >
-              <Download size={14} className="text-gray-500" /> Export Summy
+              <Download size={14} className="text-gray-500" /> Export Summary
             </button>
 
-            <button className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20">
+            <button 
+              onClick={() => navigate('/admin/orders/create')}
+              className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20"
+            >
               <Plus size={14} /> New Manual Order
             </button>
           </div>
@@ -208,7 +212,7 @@ const AdminDashboard = () => {
                    </h2>
                    <p className="text-xs text-gray-500 mt-1">Latest contact form inquiries & feedback</p>
                 </div>
-                <button onClick={() => handleNavigate('/admin/messages')} className="text-xs font-bold text-[#ff5100] hover:text-[#e04800] flex items-center gap-1 transition-colors active:scale-95">
+                <button onClick={() => navigate('/admin/messages')} className="text-xs font-bold text-[#ff5100] hover:text-[#e04800] flex items-center gap-1 transition-colors active:scale-95">
                   View All Messages (4) <ArrowRight size={14} />
                 </button>
              </div>
@@ -362,14 +366,14 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Bottom Section: Recent Orders Table */}
+        {/* Bottom Section: Recent Orders Table (Matching Orders Page Data) */}
         <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-6 overflow-hidden space-y-4">
            
            {/* Top Bar with Title and Search */}
            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                  <h2 
-                   onClick={() => handleNavigate('/admin/orders')} 
+                   onClick={() => navigate('/admin/orders')} 
                    className="text-lg font-extrabold text-gray-900 cursor-pointer hover:text-[#ff5100] transition-colors"
                  >
                    Recent Orders
@@ -395,7 +399,7 @@ const AdminDashboard = () => {
                 onClick={() => setActiveTab('All')}
                 className={`px-4 py-1.5 text-[11px] font-bold rounded-md transition-all active:scale-95 whitespace-nowrap ${activeTab === 'All' ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-800'}`}
               >
-                All Orders (18)
+                All Orders (5)
               </button>
               <button 
                 onClick={() => setActiveTab('Preparing')}
@@ -407,7 +411,7 @@ const AdminDashboard = () => {
                 onClick={() => setActiveTab('Completed')}
                 className={`px-4 py-1.5 text-[11px] font-bold rounded-md transition-all active:scale-95 whitespace-nowrap ${activeTab === 'Completed' ? 'bg-white text-gray-900 shadow-sm border border-gray-200' : 'text-gray-500 hover:text-gray-800'}`}
               >
-                Completed (14)
+                Completed (1)
               </button>
               <button 
                 onClick={() => setActiveTab('Canceled')}
@@ -444,42 +448,47 @@ const AdminDashboard = () => {
                            <td className="py-4 text-xs font-semibold text-gray-700 max-w-[200px] truncate">{order.items}</td>
                            <td className="py-4 text-sm font-bold text-gray-900">{order.total}</td>
                            <td className="py-4">
+                              {order.status === 'New' && (
+                                <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-orange-100">
+                                   <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span> New
+                                </span>
+                              )}
                               {order.status === 'Preparing' && (
-                                <span className="inline-flex items-center gap-1.5 bg-orange-50 text-[#ff5100] text-[10px] font-bold px-2.5 py-1 rounded-md">
-                                   <span className="w-1.5 h-1.5 bg-[#ff5100] rounded-full animate-pulse"></span> Preparing
+                                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-[10px] font-bold px-2.5 py-1 rounded-md border border-amber-100">
+                                   <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span> Preparing
                                 </span>
                               )}
                               {order.status === 'Ready' && (
-                                <span className="inline-flex items-center gap-1.5 bg-[#ff5100] text-white text-[10px] font-bold px-2.5 py-1 rounded-md">
-                                   <RotateCw size={10} className="animate-spin" /> Ready for Pickup
+                                <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-blue-100">
+                                   <RotateCw size={10} className="animate-spin" /> Ready
                                 </span>
                               )}
-                              {order.status === 'Completed' && (
-                                <span className="inline-flex items-center gap-1.5 text-emerald-600 text-[10px] font-bold px-1 py-1 rounded-md">
-                                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Completed
+                              {order.status === 'Delivered' && (
+                                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-emerald-100">
+                                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Delivered
                                 </span>
                               )}
-                              {order.status === 'Canceled' && (
-                                <span className="inline-flex items-center gap-1.5 text-red-500 text-[10px] font-bold px-1 py-1 rounded-md">
-                                   <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Canceled
+                              {order.status === 'Cancelled' && (
+                                <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-red-100">
+                                   <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Cancelled
                                 </span>
                               )}
                            </td>
                            <td className="py-4 pr-2 text-right space-x-2">
-                              {order.status === 'Preparing' && (
+                              {(order.status === 'New' || order.status === 'Preparing') && (
                                 <>
-                                  <button className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">View</button>
-                                  <button className="bg-[#ff5100] text-white text-[10px] font-bold px-3 py-1.5 rounded hover:bg-[#e04800] transition-colors">Mark Ready</button>
+                                  <button onClick={() => navigate('/admin/orders')} className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">View</button>
+                                  <button onClick={() => navigate('/admin/orders')} className="bg-[#ff5100] text-white text-[10px] font-bold px-3 py-1.5 rounded hover:bg-[#e04800] transition-colors">Mark Ready</button>
                                 </>
                               )}
                               {order.status === 'Ready' && (
-                                <button className="border border-[#ff5100] text-[#ff5100] text-[10px] font-bold px-3 py-1.5 rounded hover:bg-orange-50 transition-colors">Dispatch Driver</button>
+                                <button onClick={() => navigate('/admin/orders')} className="border border-[#ff5100] text-[#ff5100] text-[10px] font-bold px-3 py-1.5 rounded hover:bg-orange-50 transition-colors">Dispatch Driver</button>
                               )}
-                              {order.status === 'Completed' && (
-                                <button className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">Receipt</button>
+                              {order.status === 'Delivered' && (
+                                <button onClick={() => navigate('/admin/orders')} className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">Receipt</button>
                               )}
-                              {order.status === 'Canceled' && (
-                                <button className="text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors">View Log</button>
+                              {order.status === 'Cancelled' && (
+                                <button onClick={() => navigate('/admin/orders')} className="text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors">View Log</button>
                               )}
                            </td>
                         </tr>
@@ -497,8 +506,8 @@ const AdminDashboard = () => {
               <span className="text-[10px] font-medium text-gray-500">Showing {filteredOrders.length} orders • Auto-syncing every 30 seconds</span>
               <div className="flex items-center gap-4">
                  <button className="text-xs font-bold text-gray-400 cursor-not-allowed">Previous</button>
-                 <span className="text-xs font-bold text-gray-900">Page 1 of 3</span>
-                 <button className="text-xs font-bold text-gray-900 hover:text-[#ff5100] transition-colors">Next</button>
+                 <span className="text-xs font-bold text-gray-900">Page 1 of 1</span>
+                 <button className="text-xs font-bold text-gray-400 cursor-not-allowed">Next</button>
               </div>
            </div>
 

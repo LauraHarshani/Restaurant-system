@@ -26,7 +26,8 @@ export default function AdminSidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    sessionStorage.removeItem("demoAdminLoggedIn");
+    localStorage.removeItem("adminToken");
+    sessionStorage.removeItem("adminToken");
     navigate("/admin/login");
   };
 

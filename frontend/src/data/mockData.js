@@ -1,6 +1,6 @@
 ﻿export const chefs = [
   { id: 1, name: "Arjun Perera", title: "Executive Chef", specialty: "Open-flame cooking", bio: "The creative force behind our fire. Bold flavors, thoughtful ingredients and firewood.", image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800", status: "On duty", shift: "12:00 pm  8:00 pm", email: "arjun@flameandcrust.lk", phone: "+94 77 123 4567", featured: true },
-  { id: 2, name: "Maya Fernando", title: "Head Pizza Chef", specialty: "Wood-fired dough & crust", bio: "From a slow fermented dough to the perfect blistered crust.", image: "https://images.unsplash.com/photo-1583394293214-28a5b42f7a72?w=800", status: "On duty", shift: "12:00 pm  8:00 pm", email: "maya@flameandcrust.lk", phone: "+94 77 234 5678", featured: true },
+  { id: 2, name: "Maya Fernando", title: "Head Pizza Chef", specialty: "Wood-fired dough & crust", bio: "From a slow fermented dough to the perfect blistered crust.", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800", status: "On duty", shift: "12:00 pm  8:00 pm", email: "maya@flameandcrust.lk", phone: "+94 77 234 5678", featured: true },
   { id: 3, name: "Daniel Silva", title: "Grill Chef", specialty: "Flame-grilled signatures", bio: "A master of smoke, sear and balance.", image: "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=800", status: "Off duty", shift: "4:00 pm  12:00 am", email: "daniel@flameandcrust.lk", phone: "+94 77 345 6789", featured: true }
 ];
 

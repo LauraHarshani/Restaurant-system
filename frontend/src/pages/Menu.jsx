@@ -3,6 +3,49 @@ import { useMenu } from "../context/MenuContext";
 import FoodCard from "../components/FoodCard";
 import { Search, UtensilsCrossed } from "lucide-react";
 
+const homeFeaturedDishes = [
+  {
+    id: "home-featured-1",
+    name: "The Blaze Classic Burger",
+    description: "Flame-seared beef, melted cheddar, and our smoky house sauce.",
+    price: 1900,
+    category: "Burgers",
+    image: "/Images/food 2.jpeg",
+    available: true,
+    featured: false,
+  },
+  {
+    id: "home-featured-2",
+    name: "Wood-Fired Glazed Wings",
+    description: "Tender wings coated in a sticky, smoky signature glaze.",
+    price: 1200,
+    category: "Wings",
+    image: "/Images/food 4.jpeg",
+    available: true,
+    featured: false,
+  },
+  {
+    id: "home-featured-3",
+    name: "Wood-Fired Supreme Pizza",
+    description: "A crisp, blistered crust topped with our generous supreme mix.",
+    price: 2500,
+    category: "Pizza",
+    image: "/Images/food 5.jpeg",
+    available: true,
+    featured: false,
+  },
+  {
+    id: "home-featured-4",
+    name: "The Volcano Double Burger",
+    description: "Two juicy beef patties layered with bold, fiery flavor.",
+    price: 2200,
+    category: "Burgers",
+    image: "/Images/food1.jpeg",
+    available: true,
+    featured: false,
+  },
+];
+
 export default function Menu() {
   const { menuItems } = useMenu();
   const [activeCategory, setActiveCategory] = useState("All dishes");
@@ -10,7 +53,7 @@ export default function Menu() {
 
   const categories = ["All dishes", "Burgers", "Pizza", "Wings"];
 
-  const filtered = menuItems.filter((item) => {
+  const filtered = [...menuItems, ...homeFeaturedDishes].filter((item) => {
     const matchCat = activeCategory === "All dishes" || item.category === activeCategory;
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
@@ -18,25 +61,27 @@ export default function Menu() {
 
   return (
     <div className="bg-[#120D0B] text-[#F5F2EB] min-h-screen">
-      <section className="relative h-[55vh] flex items-center justify-center text-center overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1600"
-          alt="Menu Background"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#120D0B]/60 via-[#120D0B]/40 to-[#120D0B]"></div>
+      <section className="relative flex min-h-[420px] justify-center overflow-hidden px-5 text-center sm:min-h-[480px]">
+        <div aria-hidden="true" className="absolute inset-0 z-0">
+          <video
+            src="/Videos/restaurant-background4.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-full object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-[#120D0B]" />
+        </div>
         
-        <div className="relative z-10 px-6 max-w-3xl mx-auto mt-10">
-          <p className="text-[#D97736] text-[10px] font-bold tracking-[0.3em] mb-4 uppercase">
-            WOOD-FIRED  FLAME-GRILLED
-          </p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold text-[#F5F2EB] mb-6 leading-tight">
+        <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-32 sm:pt-36">
+          <h1 className="mb-4 font-display text-5xl font-bold leading-tight tracking-wide text-[#F5F2EB] md:text-7xl">
             From our flame to your table.
           </h1>
-          <p className="text-[#A8A29E] text-sm md:text-base mb-4">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-200 sm:text-lg">
             Browse the menu, find your favourites and make it a feast. Freshly prepared. Always served.
           </p>
-          <div className="flex items-center justify-center gap-2 text-[12px] text-[#D97736]">
+          <div className="mt-4 flex items-center justify-center gap-2 text-[12px] text-[#D97736]">
             <span className="w-1.5 h-1.5 bg-[#D97736] rounded-full animate-pulse"></span>
             <span>Open Daily: 12pm  11pm</span>
           </div>
@@ -82,7 +127,7 @@ export default function Menu() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {filtered.map((item) => (
             <FoodCard key={item.id} item={item} />
           ))}
