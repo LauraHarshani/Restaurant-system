@@ -4,6 +4,7 @@ const authenticateToken = (req, res, next) =>{
 
     const authHeader = req.headers.authorization;
 
+    //check if the token is in the header
     // Expected format: Authorization: Bearer <token>
     const token = authHeader?.startswith("Bearer")
         ? authHeader.slice(7)
