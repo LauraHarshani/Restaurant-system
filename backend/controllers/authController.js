@@ -125,18 +125,6 @@ const registerAdmin = async (req, res) => {
       });
     }
 
-    // Allow only the initial administrator to be registered.
-    const adminCount = await prisma.user.count({
-      where: { role: 'ADMIN' },
-    });
-
-    if (adminCount > 0) {
-      return res.status(403).json({
-        success: false,
-        message: 'An administrator already exists. Registration is closed.',
-      });
-    }
-
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = await prisma.user.findUnique({
