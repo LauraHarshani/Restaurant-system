@@ -14,17 +14,17 @@ const homeRoutes = require('./routes/homeRoutes');
 const aboutRoutes = require('./routes/aboutRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const authRoutes = require('./routes/authRoutes');
-// const chefRoutes = require("./routes/chefRoutes");
-// const menuRoutes = require("./routes/menuRoutes");
-// const categoryRoutes = require("./routes/categoryRoutes");
+const chefRoutes = require("./routes/chefRoutes");
+const menuRoutes = require("./routes/menuRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 app.use('/api/content/home', homeRoutes);
 app.use('/api/content/about', aboutRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auth', authRoutes);
-// app.use("/api/chefs", chefRoutes);
-// app.use("/api/menu", menuRoutes);
-// app.use("/api/categories", categoryRoutes);
+app.use("/api/chefs", chefRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // Testing Route
 app.get('/', (req, res) => {
