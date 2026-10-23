@@ -149,7 +149,105 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+//get one order details
+
+const getOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error("Get order by ID error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to retrieve order.",
+    });
+  }
+};
+
+//update order status
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Allowed order statuses
+    const allowedStatuses = [
+      "New",
+      "Preparing",
+      "Ready",
+      "Completed",
+      "Cancelled",
+    ];
+
+    // Validate the requested status
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status.",
+        allowedStatuses,
+      });
+    }
+
+    // Check whether the order exists
+    const existingOrder = await prisma.order.findUnique({
+      where: { id },
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    // Update the order status
+    const updatedOrder = await prisma.order.update({
+      where: { id },
+      data: { status },
+      include: {
+        items: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated successfully.",
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error("Update order status error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update order status.",
+    });
+  }
+};
+
+
 module.exports = {
   createOrder,
-  getAllOrders
+  getAllOrders,
+  getOrderById,
+  updateOrderStatus
 };
