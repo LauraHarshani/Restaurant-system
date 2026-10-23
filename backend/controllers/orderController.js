@@ -122,4 +122,34 @@ const createOrder = async (req, res) => {
     }
 };
 
-module.exports = {createOrder};
+//get all order details
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      include: {
+        items: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.error("Get all orders error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to retrieve orders.",
+    });
+  }
+};
+
+module.exports = {
+  createOrder,
+  getAllOrders
+};
