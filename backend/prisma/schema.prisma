@@ -85,6 +85,16 @@ model ContactMessage {
   createdAt DateTime @default(now())
 }
 
+
+model ContactDetails {
+  id                Int      @id @default(autoincrement())
+  address           String
+  phone             String
+  email             String
+  googleMapsLocation String
+  updatedAt         DateTime @updatedAt
+}
+
 model PageContent {
   id        Int      @id @default(autoincrement())
   page      String
