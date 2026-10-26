@@ -77,7 +77,11 @@ model ContactMessage {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
+  subject   String  @default("No subject")
   message   String
+  isRead    Boolean @default(false)
+  reply     String?
+  repliedAt DateTime?
   createdAt DateTime @default(now())
 }
 
