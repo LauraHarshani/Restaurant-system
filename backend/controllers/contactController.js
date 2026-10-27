@@ -66,8 +66,53 @@ const getMessages = async (req, res) => {
   }
 };
 
+//mark as read
+
+const markMessageAsRead = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid message ID.",
+      });
+    }
+
+    const existingMessage = await prisma.contactMessage.findUnique({
+      where: { id },
+    });
+
+    if (!existingMessage) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found.",
+      });
+    }
+
+    const message = await prisma.contactMessage.update({
+      where: { id },
+      data: { isRead: true },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Message marked as read.",
+      data: message,
+    });
+  } catch (error) {
+    console.error("Mark message as read error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to mark message as read.",
+    });
+  }
+};
+
 
 module.exports = {
   createMessage,
-  getMessages
+  getMessages,
+  markMessageAsRead
 };
