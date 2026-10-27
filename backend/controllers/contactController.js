@@ -110,9 +110,66 @@ const markMessageAsRead = async (req, res) => {
   }
 };
 
+//reply message
+
+const replyToMessage = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { reply } = req.body || {};
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid message ID.",
+      });
+    }
+
+    if (typeof reply !== "string" || !reply.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Reply is required.",
+      });
+    }
+
+    const existingMessage = await prisma.contactMessage.findUnique({
+      where: { id },
+    });
+
+    if (!existingMessage) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found.",
+      });
+    }
+
+    const updatedMessage = await prisma.contactMessage.update({
+      where: { id },
+      data: {
+        reply: reply.trim(),
+        repliedAt: new Date(),
+        isRead: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Reply saved successfully.",
+      data: updatedMessage,
+    });
+  } catch (error) {
+    console.error("Reply to message error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to save reply.",
+    });
+  }
+};
+
 
 module.exports = {
   createMessage,
   getMessages,
-  markMessageAsRead
+  markMessageAsRead,
+  replyToMessage
 };
