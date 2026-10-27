@@ -42,6 +42,32 @@ const createMessage = async (req, res) => {
   }
 };
 
+//get all messages by admin
+const getMessages = async (req, res) => {
+  try {
+    const messages = await prisma.contactMessage.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: messages.length,
+      messages,
+    });
+  } catch (error) {
+    console.error("Get contact messages error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to retrieve contact messages.",
+    });
+  }
+};
+
+
 module.exports = {
   createMessage,
+  getMessages
 };
