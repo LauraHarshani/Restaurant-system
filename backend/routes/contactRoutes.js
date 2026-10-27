@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const {createMessage,
-    getMessages
+    getMessages,
+    markMessageAsRead
 } = require("../controllers/contactController");
 
 //send messages
