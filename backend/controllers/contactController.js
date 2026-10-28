@@ -166,10 +166,53 @@ const replyToMessage = async (req, res) => {
   }
 };
 
+//delete message
+
+const deleteMessage = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid message ID.",
+      });
+    }
+
+    const existingMessage = await prisma.contactMessage.findUnique({
+      where: { id },
+    });
+
+    if (!existingMessage) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found.",
+      });
+    }
+
+    await prisma.contactMessage.delete({
+      where: { id },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Contact message deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete contact message error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete contact message.",
+    });
+  }
+};
+
 
 module.exports = {
   createMessage,
   getMessages,
   markMessageAsRead,
-  replyToMessage
+  replyToMessage,
+  deleteMessage
 };
