@@ -236,6 +236,7 @@ const getContactDetails = async (req, res) => {
   }
 };
 
+//update contact details
 const updateContactDetails = async (req, res) => {
   try {
     const {
@@ -344,5 +345,7 @@ module.exports = {
   getMessages,
   markMessageAsRead,
   replyToMessage,
-  deleteMessage
+  deleteMessage,
+  getContactDetails,
+  updateContactDetails
 };
