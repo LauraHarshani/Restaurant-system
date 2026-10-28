@@ -77,8 +77,22 @@ model ContactMessage {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
+  subject   String  @default("No subject")
   message   String
+  isRead    Boolean @default(false)
+  reply     String?
+  repliedAt DateTime?
   createdAt DateTime @default(now())
+}
+
+
+model ContactDetails {
+  id                Int      @id @default(autoincrement())
+  address           String
+  phone             String
+  email             String
+  googleMapsLocation String
+  updatedAt         DateTime @updatedAt
 }
 
 model PageContent {
