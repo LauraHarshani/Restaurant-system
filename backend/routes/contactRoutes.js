@@ -5,7 +5,9 @@ const {createMessage,
     getMessages,
     markMessageAsRead,
     replyToMessage,
-    deleteMessage
+    deleteMessage,
+    getContactDetails,
+    updateContactDetails
 } = require("../controllers/contactController");
 
 //send messages
@@ -22,5 +24,11 @@ router.patch("/messages/:id/reply", replyToMessage)
 
 //delete message
 router.delete("/messages/:id", deleteMessage)
+
+//get contact details
+router.get("/details", getContactDetails)
+
+//update contact details
+router.patch('/details', updateContactDetails)
 
 module.exports = router;
