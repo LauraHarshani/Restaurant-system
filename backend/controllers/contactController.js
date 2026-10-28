@@ -208,6 +208,136 @@ const deleteMessage = async (req, res) => {
   }
 };
 
+//get restaurant contact details
+const getContactDetails = async (req, res) => {
+  try {
+    const details = await prisma.contactDetails.findFirst({
+      orderBy: { id: "asc" },
+    });
+
+    if (!details) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant contact details have not been configured yet.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      details,
+    });
+  } catch (error) {
+    console.error("Get contact details error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to retrieve restaurant contact details.",
+    });
+  }
+};
+
+const updateContactDetails = async (req, res) => {
+  try {
+    const {
+      address,
+      phone,
+      email,
+      googleMapsLocation,
+    } = req.body || {};
+
+    const allowedFields = {
+      address,
+      phone,
+      email,
+      googleMapsLocation,
+    };
+
+    const updates = {};
+
+    for (const [key, value] of Object.entries(allowedFields)) {
+      if (value !== undefined) {
+        if (typeof value !== "string" || !value.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: `${key} must be a non-empty string.`,
+          });
+        }
+
+        updates[key] = value.trim();
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Provide at least one contact field to update.",
+      });
+    }
+
+    if (updates.email) {
+      updates.email = updates.email.toLowerCase();
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailPattern.test(updates.email)) {
+        return res.status(400).json({
+          success: false,
+          message: "Please provide a valid email address.",
+        });
+      }
+    }
+
+    const existingDetails = await prisma.contactDetails.findFirst({
+      orderBy: { id: "asc" },
+    });
+
+    let details;
+
+    if (!existingDetails) {
+      const requiredFields = [
+        "address",
+        "phone",
+        "email",
+        "googleMapsLocation",
+      ];
+
+      const missingFields = requiredFields.filter(
+        (field) => !updates[field]
+      );
+
+      if (missingFields.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Provide all four contact fields to configure the initial details.",
+          missingFields,
+        });
+      }
+
+      details = await prisma.contactDetails.create({
+        data: updates,
+      });
+    } else {
+      details = await prisma.contactDetails.update({
+        where: { id: existingDetails.id },
+        data: updates,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant contact details saved successfully.",
+      details,
+    });
+  } catch (error) {
+    console.error("Update contact details error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to save restaurant contact details.",
+    });
+  }
+};
+
 
 module.exports = {
   createMessage,
