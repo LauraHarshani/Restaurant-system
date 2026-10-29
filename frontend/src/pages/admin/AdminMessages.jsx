@@ -1,5 +1,4 @@
-
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Pencil,
@@ -11,129 +10,121 @@ import {
   Check,
   Mail,
   MessageCircle,
+  Trash2,
 } from "lucide-react";
 
-const initialMessages = [
-  {
-    id: 1,
-    name: "Minindu Rajapaksha",
-    email: "minindurajapaksha@ex.com",
-    subject: "Reservation inquiry",
-    date: "Oct 10, 2026 3:50 PM",
-    preview: "Hi, I'd like to know if you have tables available...",
-    message:
-      "Hi, I'd like to know if you have tables available for this Saturday evening. We are group of 4 and would prefer a table around 7.00 PM.\n\nPlease let me know if a reservation is possible.\nthank you\n\nBest Regards,\nMinindu",
-    unread: true,
-  },
-  {
-    id: 2,
-    name: "Kavindi Perera",
-    email: "kavindi@example.com",
-    subject: "Menu inquiry",
-    date: "Oct 10, 2026 2:35 PM",
-    preview: "Could you please share your vegetarian options...",
-    message:
-      "Hello Flame & Crust team,\n\nCould you please share your vegetarian options? I would also like to know whether you have vegan-friendly meals.\n\nThank you!",
-    unread: true,
-  },
-  {
-    id: 3,
-    name: "Nimal Fernando",
-    email: "nimal@example.com",
-    subject: "Delivery inquiry",
-    date: "Oct 10, 2026 1:15 PM",
-    preview: "I would like to know if delivery is available...",
-    message:
-      "Hello,\n\nI would like to know if delivery is available in Colombo 05 and what the delivery fee would be.\n\nThanks.",
-    unread: true,
-  },
-  {
-    id: 4,
-    name: "Sarah Silva",
-    email: "sarah@example.com",
-    subject: "Feedback",
-    date: "Oct 9, 2026 5:20 PM",
-    preview: "I really enjoyed the food at your restaurant...",
-    message:
-      "Hi team,\n\nI really enjoyed the food at your restaurant. The service was excellent, and I wanted to share my appreciation.\n\nKeep up the great work!",
-    unread: true,
-  },
-  {
-    id: 5,
-    name: "Kasun Jayawardena",
-    email: "kasun@example.com",
-    subject: "Order inquiry",
-    date: "Oct 9, 2026 11:40 AM",
-    preview: "I have a question about my recent order...",
-    message:
-      "Hello,\n\nI have a question about my recent order. Could someone help me check its status?\n\nThank you.",
-    unread: true,
-  },
-  {
-    id: 6,
-    name: "Amaya Peris",
-    email: "amaya@example.com",
-    subject: "Catering inquiry",
-    date: "Oct 8, 2026 4:10 PM",
-    preview: "Do you offer catering for private events...",
-    message:
-      "Hello Flame & Crust,\n\nDo you offer catering for private events? I am planning a small event and would appreciate some information.\n\nBest regards,\nAmaya",
-    unread: true,
-  },
-  {
-    id: 7,
-    name: "Tharindu Silva",
-    email: "tharindu@example.com",
-    subject: "Opening hours",
-    date: "Oct 8, 2026 10:30 AM",
-    preview: "Could you confirm your weekend opening hours...",
-    message:
-      "Hi,\n\nCould you confirm your weekend opening hours?\n\nThanks!",
-    unread: true,
-  },
-  {
-    id: 8,
-    name: "Dinithi Perera",
-    email: "dinithi@example.com",
-    subject: "Reservation inquiry",
-    date: "Oct 7, 2026 6:00 PM",
-    preview: "Can I make a reservation for two people...",
-    message:
-      "Hello,\n\nCan I make a reservation for two people this weekend?\n\nPlease let me know. Thank you.",
-    unread: true,
-  },
-  {
-    id: 9,
-    name: "Ravindu Costa",
-    email: "ravindu@example.com",
-    subject: "Payment inquiry",
-    date: "Oct 7, 2026 2:20 PM",
-    preview: "I would like to ask about available payment methods...",
-    message:
-      "Hello,\n\nI would like to ask about the payment methods available for online orders.\n\nThank you.",
-    unread: false,
-  },
-  {
-    id: 10,
-    name: "Ishara Wickramasinghe",
-    email: "ishara@example.com",
-    subject: "General inquiry",
-    date: "Oct 6, 2026 9:45 AM",
-    preview: "I would like some information about your restaurant...",
-    message:
-      "Hi there,\n\nI would like some information about your restaurant and the services you offer.\n\nThank you.",
-    unread: false,
-  },
-];
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+const PAGE_SIZE = 5;
+
+function formatDate(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleString("en-LK", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function normalizeMessage(message) {
+  return {
+    ...message,
+    id: Number(message.id),
+    name: message.name || "Unknown sender",
+    email: message.email || "",
+    subject: message.subject || "No subject",
+    message: message.message || "",
+    date: formatDate(message.createdAt),
+    preview: (message.message || "").replace(/\s+/g, " ").trim(),
+    unread: !message.isRead,
+    reply: message.reply || "",
+    repliedAt: message.repliedAt || null,
+  };
+}
+
+async function requestApi(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || data.error || "The request could not be completed."
+    );
+  }
+
+  return data;
+}
 
 export default function AdminMessages() {
-  const [messages, setMessages] = useState(initialMessages);
-  const [selectedId, setSelectedId] = useState(1);
+  const [messages, setMessages] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [replyText, setReplyText] = useState("");
-  const [replies, setReplies] = useState({});
+
+  const [loading, setLoading] = useState(true);
+  const [pageError, setPageError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [replying, setReplying] = useState(false);
+  const [updatingReadId, setUpdatingReadId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const loadMessages = useCallback(async () => {
+    try {
+      setLoading(true);
+      setPageError("");
+
+      const data = await requestApi(
+        `${API_BASE_URL}/contact/messages`
+      );
+
+      const list = Array.isArray(data)
+        ? data
+        : data.messages || data.data || [];
+
+      if (!Array.isArray(list)) {
+        throw new Error("The server returned an invalid messages list.");
+      }
+
+      const normalized = list.map(normalizeMessage);
+
+      setMessages(normalized);
+
+      setSelectedId((currentId) => {
+        if (normalized.some((item) => item.id === currentId)) {
+          return currentId;
+        }
+
+        return normalized[0]?.id ?? null;
+      });
+    } catch (error) {
+      console.error("Unable to load contact messages:", error);
+      setPageError(error.message || "Unable to load messages.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMessages();
+  }, [loadMessages]);
 
   const unreadCount = messages.filter((message) => message.unread).length;
   const readCount = messages.length - unreadCount;
@@ -160,17 +151,17 @@ export default function AdminMessages() {
     });
   }, [messages, filter, search]);
 
-  const pageSize = 5;
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredMessages.length / pageSize)
+    Math.ceil(filteredMessages.length / PAGE_SIZE)
   );
+
   const currentPage = Math.min(page, totalPages);
-  const startIndex = (currentPage - 1) * pageSize;
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
 
   const visibleMessages = filteredMessages.slice(
     startIndex,
-    startIndex + pageSize
+    startIndex + PAGE_SIZE
   );
 
   const selectedMessage =
@@ -178,7 +169,8 @@ export default function AdminMessages() {
 
   const avatarText = (name) =>
     name
-      .split(" ")
+      .split(/\s+/)
+      .filter(Boolean)
       .map((part) => part[0])
       .slice(0, 2)
       .join("")
@@ -192,33 +184,149 @@ export default function AdminMessages() {
   const selectMessage = (message) => {
     setSelectedId(message.id);
     setReplyText("");
+    setActionError("");
+    setNotice("");
   };
 
-  const updateMessageStatus = (id, unread) => {
-    setMessages((current) =>
-      current.map((message) =>
-        message.id === id ? { ...message, unread } : message
-      )
-    );
+  const handleMarkAsRead = async () => {
+    if (!selectedMessage || !selectedMessage.unread) return;
+
+    try {
+      setUpdatingReadId(selectedMessage.id);
+      setActionError("");
+      setNotice("");
+
+      await requestApi(
+        `${API_BASE_URL}/contact/messages/${selectedMessage.id}/read`,
+        { method: "PATCH" }
+      );
+
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === selectedMessage.id
+            ? { ...message, unread: false }
+            : message
+        )
+      );
+
+      setNotice("Message marked as read.");
+    } catch (error) {
+      console.error("Unable to update message status:", error);
+      setActionError(error.message || "Unable to mark message as read.");
+    } finally {
+      setUpdatingReadId(null);
+    }
   };
 
-  const handleReply = (event) => {
+  const handleReply = async (event) => {
     event.preventDefault();
 
     if (!selectedMessage || !replyText.trim()) return;
 
-    setReplies((current) => ({
-      ...current,
-      [selectedMessage.id]: [
-        ...(current[selectedMessage.id] || []),
-        {
-          text: replyText.trim(),
-          date: new Date().toLocaleString(),
-        },
-      ],
-    }));
+    try {
+      setReplying(true);
+      setActionError("");
+      setNotice("");
 
-    setReplyText("");
+      const reply = replyText.trim();
+
+      const data = await requestApi(
+        `${API_BASE_URL}/contact/messages/${selectedMessage.id}/reply`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ reply }),
+        }
+      );
+
+      const savedReply =
+        data.message && typeof data.message === "object"
+          ? data.message
+          : data.details || data.data || {};
+
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === selectedMessage.id
+            ? {
+                ...message,
+                reply: savedReply.reply || reply,
+                repliedAt: savedReply.repliedAt || new Date().toISOString(),
+                unread: false,
+              }
+            : message
+        )
+      );
+
+      setReplyText("");
+      setNotice(
+        "Reply sent successfully."
+      );
+    } catch (error) {
+      console.error("Unable to save reply:", error);
+      setActionError(error.message || "Unable to save your reply.");
+    } finally {
+      setReplying(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedMessage) return;
+
+    const confirmed = window.confirm(
+      `Delete the message from ${selectedMessage.name}? This cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    const deletedId = selectedMessage.id;
+
+    try {
+      setDeletingId(deletedId);
+      setActionError("");
+      setNotice("");
+
+      await requestApi(
+        `${API_BASE_URL}/contact/messages/${deletedId}`,
+        { method: "DELETE" }
+      );
+
+      const remaining = messages.filter(
+        (message) => message.id !== deletedId
+      );
+
+      setMessages(remaining);
+      setSelectedId(remaining[0]?.id ?? null);
+      setReplyText("");
+      setNotice("Message deleted successfully.");
+
+      const remainingFilteredCount = remaining.filter((message) => {
+        const query = search.trim().toLowerCase();
+
+        const matchesFilter =
+          filter === "all" ||
+          (filter === "unread" && message.unread) ||
+          (filter === "read" && !message.unread);
+
+        const matchesSearch =
+          !query ||
+          [
+            message.name,
+            message.email,
+            message.subject,
+            message.message,
+          ].some((value) => value.toLowerCase().includes(query));
+
+        return matchesFilter && matchesSearch;
+      }).length;
+
+      setPage(
+        Math.max(1, Math.min(page, Math.ceil(remainingFilteredCount / PAGE_SIZE) || 1))
+      );
+    } catch (error) {
+      console.error("Unable to delete message:", error);
+      setActionError(error.message || "Unable to delete the message.");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -229,6 +337,7 @@ export default function AdminMessages() {
           <h2 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             Contact Messages
           </h2>
+
           <p className="mt-1 text-sm text-gray-500">
             Manage messages received from customers
           </p>
@@ -242,6 +351,41 @@ export default function AdminMessages() {
           Edit contact details
         </Link>
       </div>
+
+      {/* Page-level feedback */}
+      {pageError && (
+        <div
+          role="alert"
+          className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+        >
+          <p>{pageError}</p>
+          <button
+            type="button"
+            onClick={loadMessages}
+            className="mt-2 font-semibold underline"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
+      {notice && (
+        <p
+          role="status"
+          className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+        >
+          {notice}
+        </p>
+      )}
+
+      {actionError && (
+        <p
+          role="alert"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          {actionError}
+        </p>
+      )}
 
       {/* Message filters */}
       <div className="mb-7 flex flex-wrap gap-2.5">
@@ -276,13 +420,14 @@ export default function AdminMessages() {
 
       {/* Message list and details */}
       <div className="grid min-h-[650px] grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)]">
-        {/* Left panel: message list */}
+        {/* Left panel */}
         <section className="flex min-h-[600px] min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <div className="relative mb-4">
             <Search
               size={18}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
             />
+
             <input
               type="search"
               value={search}
@@ -297,7 +442,11 @@ export default function AdminMessages() {
           </div>
 
           <div className="flex-1">
-            {visibleMessages.length > 0 ? (
+            {loading ? (
+              <div className="flex min-h-[250px] items-center justify-center text-sm text-gray-500">
+                Loading messages...
+              </div>
+            ) : visibleMessages.length > 0 ? (
               visibleMessages.map((message) => (
                 <button
                   key={message.id}
@@ -330,10 +479,16 @@ export default function AdminMessages() {
                     <span className="mt-1 block truncate text-xs text-[#687b9a]">
                       {message.preview}
                     </span>
+
+                    {message.reply && (
+                      <span className="mt-1 block text-xs font-medium text-blue-600">
+                        Replied
+                      </span>
+                    )}
                   </span>
 
                   {message.unread && (
-                    <span className="mt-7 hidden min-w-[68px] rounded-md bg-[#ff6b00] px-2 py-1 text-center text-xs text-white sm:inline-block">
+                    <span className="mt-7 hidden min-w-[55px] rounded-md bg-[#ff6b00] px-2 py-1 text-center text-xs text-white sm:inline-block">
                       New
                     </span>
                   )}
@@ -343,10 +498,14 @@ export default function AdminMessages() {
               <div className="flex min-h-[250px] flex-col items-center justify-center text-center">
                 <Mail size={34} className="text-gray-300" />
                 <p className="mt-3 text-sm font-medium text-gray-600">
-                  No messages found
+                  {messages.length === 0
+                    ? "No customer messages yet"
+                    : "No messages found"}
                 </p>
                 <p className="mt-1 text-xs text-gray-400">
-                  Try another search or filter.
+                  {messages.length === 0
+                    ? "Messages submitted through the Contact page will appear here."
+                    : "Try another search or filter."}
                 </p>
               </div>
             )}
@@ -358,7 +517,7 @@ export default function AdminMessages() {
               {filteredMessages.length === 0
                 ? "No messages"
                 : `${startIndex + 1}–${Math.min(
-                    startIndex + pageSize,
+                    startIndex + PAGE_SIZE,
                     filteredMessages.length
                   )} of ${filteredMessages.length}`}
             </p>
@@ -367,8 +526,10 @@ export default function AdminMessages() {
               <button
                 type="button"
                 aria-label="Previous page"
-                disabled={currentPage === 1}
-                onClick={() => setPage((value) => Math.max(1, value - 1))}
+                disabled={currentPage === 1 || loading}
+                onClick={() =>
+                  setPage((value) => Math.max(1, value - 1))
+                }
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={21} />
@@ -395,9 +556,11 @@ export default function AdminMessages() {
               <button
                 type="button"
                 aria-label="Next page"
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || loading}
                 onClick={() =>
-                  setPage((value) => Math.min(totalPages, value + 1))
+                  setPage((value) =>
+                    Math.min(totalPages, value + 1)
+                  )
                 }
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -407,9 +570,13 @@ export default function AdminMessages() {
           </div>
         </section>
 
-        {/* Right panel: selected message */}
+        {/* Right panel */}
         <section className="flex min-h-[600px] min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-          {selectedMessage ? (
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center text-sm text-gray-500">
+              Loading message details...
+            </div>
+          ) : selectedMessage ? (
             <>
               {/* Sender details */}
               <div className="flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-start">
@@ -441,29 +608,26 @@ export default function AdminMessages() {
                   {selectedMessage.message}
                 </p>
 
-                {/* Replies */}
-                {(replies[selectedMessage.id] || []).map(
-                  (reply, index) => (
-                    <div
-                      key={`${selectedMessage.id}-reply-${index}`}
-                      className="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4"
-                    >
-                      <p className="text-xs font-semibold text-blue-800">
-                        Your reply
-                      </p>
-                      <p className="mt-2 whitespace-pre-line text-sm text-gray-700">
-                        {reply.text}
-                      </p>
+                {/* Saved reply */}
+                {selectedMessage.reply && (
+                  <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-xs font-semibold text-blue-800">
+                      Your reply
+                    </p>
+                    <p className="mt-2 whitespace-pre-line text-sm text-gray-700">
+                      {selectedMessage.reply}
+                    </p>
+                    {selectedMessage.repliedAt && (
                       <p className="mt-2 text-xs text-gray-500">
-                        {reply.date}
+                        {formatDate(selectedMessage.repliedAt)}
                       </p>
-                    </div>
-                  )
+                    )}
+                  </div>
                 )}
               </div>
 
               {/* Reply form */}
-              <form onSubmit={handleReply} className="mt-auto pt-5">
+              <form onSubmit={handleReply} className="mt-auto border-t border-gray-100 pt-5">
                 <label htmlFor="reply-message" className="sr-only">
                   Type your reply
                 </label>
@@ -472,52 +636,67 @@ export default function AdminMessages() {
                   <textarea
                     id="reply-message"
                     value={replyText}
-                    onChange={(event) => setReplyText(event.target.value)}
-                    placeholder="Type your message here..."
+                    onChange={(event) =>
+                      setReplyText(event.target.value)
+                    }
+                    placeholder={
+                      selectedMessage.reply
+                        ? "Write an updated reply..."
+                        : "Type your reply here..."
+                    }
                     rows={4}
                     className="min-h-[125px] w-full resize-y rounded-2xl border border-gray-300 bg-white px-5 py-4 pr-12 text-sm outline-none transition placeholder:text-gray-500 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10"
                   />
 
-                  <button
-                    type="button"
-                    aria-label="Attach file (not implemented)"
-                    title="File attachment is not implemented"
-                    className="absolute bottom-5 right-5 text-gray-700 hover:text-[#ff6b00]"
+                  <span
+                    title="File attachments are not implemented"
+                    className="absolute bottom-5 right-5 text-gray-400"
                   >
                     <Paperclip size={18} />
-                  </button>
+                  </span>
                 </div>
 
-                <div className="mt-5 flex flex-wrap justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateMessageStatus(
-                        selectedMessage.id,
-                        !selectedMessage.unread
-                      )
-                    }
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ff6b00] px-3 py-2 text-sm text-[#ff6b00] transition hover:bg-[#fff6f0]"
-                  >
-                    <Check size={16} />
-                    {selectedMessage.unread
-                      ? "Mark as read"
-                      : "Mark as unread"}
-                  </button>
+                <div className="mt-5 flex flex-wrap justify-between gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={
+                        !selectedMessage.unread ||
+                        updatingReadId === selectedMessage.id
+                      }
+                      onClick={handleMarkAsRead}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ff6b00] px-3 py-2 text-sm text-[#ff6b00] transition hover:bg-[#fff6f0] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Check size={16} />
+                      {updatingReadId === selectedMessage.id
+                        ? "Updating..."
+                        : selectedMessage.unread
+                          ? "Mark as read"
+                          : "Read"}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={deletingId === selectedMessage.id}
+                      onClick={handleDelete}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Trash2 size={16} />
+                      {deletingId === selectedMessage.id
+                        ? "Deleting..."
+                        : "Delete"}
+                    </button>
+                  </div>
 
                   <button
                     type="submit"
-                    disabled={!replyText.trim()}
+                    disabled={!replyText.trim() || replying}
                     className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2860ed] px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Reply size={18} />
-                    Reply
+                    {replying ? "Saving..." : "Save Reply"}
                   </button>
                 </div>
-
-                <p className="mt-3 text-right text-xs text-gray-400">
-                  Replies are currently stored in this page's state only.
-                </p>
               </form>
             </>
           ) : (
