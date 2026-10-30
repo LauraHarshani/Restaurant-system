@@ -19,6 +19,7 @@ const menuRoutes = require("./routes/menuRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 app.use('/api/content/home', homeRoutes);
 app.use('/api/content/about', aboutRoutes);
@@ -29,6 +30,7 @@ app.use("/api/menu", menuRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Testing Route
 app.get('/', (req, res) => {
