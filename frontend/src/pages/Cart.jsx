@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import {
   Minus,
   Plus,
@@ -6,93 +5,20 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
-const initialItems = [
-  {
-    id: 1,
-    name: "The Blaze Classic Burger",
-    price: 1900,
-    size: "Medium",
-    quantity: 2,
-    image: "/Images/food1.jpeg",
-  },
-  {
-    id: 2,
-    name: "The Blaze Classic Burger",
-    price: 1900,
-    size: "Medium",
-    quantity: 2,
-    image: "/Images/food1.jpeg",
-  },
-  {
-    id: 3,
-    name: "The Blaze Classic Burger",
-    price: 1900,
-    size: "Medium",
-    quantity: 2,
-    image: "/Images/food1.jpeg",
-  },
-];
-
-const sizes = ["Small", "Medium", "Large"];
 const deliveryFee = 200;
 
 export default function Cart() {
 
   const navigate = useNavigate();
-
-  const [items, setItems] = useState(initialItems);
-
-  const subtotal = useMemo(
-    () =>
-      items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
-    [items]
-  );
-
-  const totalItems = items.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const { cart: items, subtotal, cartCount, removeFromCart, updateQty } = useCart();
+  const totalItems = cartCount;
 
   const total = subtotal + (items.length ? deliveryFee : 0);
 
   const formatPrice = (price) =>
     `Rs ${price.toLocaleString("en-LK")}`;
-
-  const updateQuantity = (id, amount) => {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.max(1, item.quantity + amount),
-            }
-          : item
-      )
-    );
-  };
-
-  const updateSize = (id, size) => {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, size } : item
-      )
-    );
-  };
-
-  const removeItem = (id) => {
-    setItems((current) =>
-      current.filter((item) => item.id !== id)
-    );
-  };
-
-  const handleCheckout = () => {
-    
-    console.log("Proceeding to checkout", items);
-  };
 
   return (
     <main className="pt-22 relative isolate min-h-[650px] overflow-hidden bg-[#100706] text-white">
@@ -169,53 +95,31 @@ export default function Cart() {
                         <p className="mt-2 text-sm font-medium text-[#F47A20]">
                         {formatPrice(item.price)}
                         </p>
-
-                        <div className="mt-3">
-                        <p className="mb-1 text-xs text-gray-300">Size</p>
-
-                        <div className="flex flex-wrap gap-1.5">
-                            {sizes.map((size) => (
-                            <button
-                                key={size}
-                                type="button"
-                                onClick={() => updateSize(item.id, size)}
-                                aria-pressed={item.size === size}
-                                className={`rounded-md border px-2.5 py-1 text-xs transition ${
-                                item.size === size
-                                    ? "border-[#F47A20] text-[#F47A20]"
-                                    : "border-white/20 text-gray-300 hover:border-white/50"
-                                }`}
-                            >
-                                {size}
-                            </button>
-                            ))}
-                        </div>
-                        </div>
                     </div>
 
                     {/* Quantity selector */}
                     <div className="col-span-2 flex items-center justify-between border-t border-white/10 pt-3 sm:col-span-1 sm:border-0 sm:pt-0 lg:col-span-1 lg:justify-center">
                         <QuantityControl
-                        quantity={item.quantity}
-                        onDecrease={() => updateQuantity(item.id, -1)}
-                        onIncrease={() => updateQuantity(item.id, 1)}
+                        quantity={item.qty}
+                        onDecrease={() => updateQty(item.id, -1)}
+                        onIncrease={() => updateQty(item.id, 1)}
                         />
 
                         {/* Mobile item total */}
                         <span className="whitespace-nowrap font-bold text-[#F47A20] lg:hidden">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.price * item.qty)}
                         </span>
                     </div>
 
                     {/* Desktop item total and delete button */}
                     <div className="hidden items-center justify-between gap-3 lg:flex">
                         <span className="whitespace-nowrap text-lg font-bold text-[#F47A20]">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.price * item.qty)}
                         </span>
 
                         <button
                         type="button"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeFromCart(item.id)}
                         aria-label={`Remove ${item.name}`}
                         className="shrink-0 rounded-md p-2 text-red-500 transition hover:bg-red-500/10"
                         >
@@ -226,7 +130,7 @@ export default function Cart() {
                     {/* Mobile delete button */}
                     <button
                         type="button"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeFromCart(item.id)}
                         aria-label={`Remove ${item.name}`}
                         className="col-span-2 flex items-center gap-2 text-sm text-red-500 sm:col-span-1 lg:hidden"
                     >
