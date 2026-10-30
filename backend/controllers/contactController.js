@@ -42,29 +42,40 @@ const createMessage = async (req, res) => {
   }
 };
 
-//get all messages by admin
+
+// Retrieve all customer messages together with their reply history.
 const getMessages = async (req, res) => {
   try {
     const messages = await prisma.contactMessage.findMany({
+      // Show newest customer messages first.
       orderBy: {
         createdAt: "desc",
+      },
+
+      // Include all replies belonging to each message.
+      include: {
+        replies: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
     });
 
     return res.status(200).json({
       success: true,
-      count: messages.length,
       messages,
     });
   } catch (error) {
-    console.error("Get contact messages error:", error);
+    console.error("Get messages error:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to retrieve contact messages.",
+      message: "Unable to retrieve messages.",
     });
   }
 };
+
 
 //mark as read
 
@@ -111,28 +122,30 @@ const markMessageAsRead = async (req, res) => {
 };
 
 //reply message
-
 const replyToMessage = async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const { reply } = req.body || {};
+    const messageId = Number(req.params.id);
+    const { reply } = req.body;
 
-    if (!Number.isInteger(id) || id <= 0) {
+    // Validate the message ID.
+    if (!Number.isInteger(messageId) || messageId <= 0) {
       return res.status(400).json({
         success: false,
         message: "Invalid message ID.",
       });
     }
 
-    if (typeof reply !== "string" || !reply.trim()) {
+    // Validate the reply content.
+    if (!reply || !reply.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Reply is required.",
+        message: "Reply cannot be empty.",
       });
     }
 
+    // Check whether the original customer message exists.
     const existingMessage = await prisma.contactMessage.findUnique({
-      where: { id },
+      where: { id: messageId },
     });
 
     if (!existingMessage) {
@@ -142,29 +155,35 @@ const replyToMessage = async (req, res) => {
       });
     }
 
-    const updatedMessage = await prisma.contactMessage.update({
-      where: { id },
+    // Save the new reply as a separate database record.
+    const newReply = await prisma.contactReply.create({
       data: {
+        messageId,
         reply: reply.trim(),
-        repliedAt: new Date(),
-        isRead: true,
       },
     });
 
-    return res.status(200).json({
+    // Mark the original customer message as read.
+    await prisma.contactMessage.update({
+      where: { id: messageId },
+      data: { isRead: true },
+    });
+
+    return res.status(201).json({
       success: true,
       message: "Reply saved successfully.",
-      data: updatedMessage,
+      reply: newReply,
     });
   } catch (error) {
-    console.error("Reply to message error:", error);
+    console.error("Reply error:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to save reply.",
+      message: "Unable to save reply.",
     });
   }
 };
+
 
 //delete message
 
