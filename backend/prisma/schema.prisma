@@ -52,6 +52,7 @@ model Category {
 model Order {
   id          String      @id
   customer    String
+  email       String?
   phone       String
   address     String
   type        String
