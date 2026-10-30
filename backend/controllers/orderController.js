@@ -4,7 +4,7 @@ const { randomUUID } = require("crypto");
 //Create a customer order
 const createOrder = async (req, res) => {
     try{
-        const { customer, phone, address, type, note, items } = req.body;
+        const { customer, email, phone, address, type, note, items } = req.body;
 
         //validate customer details
         if(!customer?.trim() || !phone?.trim() || !type?.trim()){
@@ -89,6 +89,7 @@ const createOrder = async (req, res) => {
             data: {
                 id: randomUUID(),
                 customer: customer.trim(),
+                email: email?.trim() || null,
                 phone: phone.trim(),
                 address: address?.trim() || "",
                 type: type.trim(),

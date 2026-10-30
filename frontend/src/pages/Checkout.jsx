@@ -1,34 +1,10 @@
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreditCard, Banknote, ShoppingBag } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
-// Temporary cart data. Replace with shared cart state when integrating.
-const sampleItems = [
-  {
-    id: 1,
-    name: "The Blaze Classic Burger",
-    price: 1900,
-    size: "Small",
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "The Blaze Classic Burger",
-    price: 1900,
-    size: "Small",
-    quantity: 2,
-  },
-  {
-    id: 3,
-    name: "The Blaze Classic Burger",
-    price: 1900,
-    size: "Small",
-    quantity: 2,
-  },
-];
-
-const DELIVERY_FEE = 200;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const initialForm = {
   firstName: "",
@@ -43,26 +19,16 @@ const inputClass =
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const [items] = useState(sampleItems);
+  const { cart: items, subtotal, cartCount, clearCart } = useCart();
   const [form, setForm] = useState(initialForm);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subtotal = useMemo(
-    () =>
-      items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
-    [items]
-  );
+  const totalItems = cartCount;
 
-  const totalItems = items.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
-
-  const total = subtotal + (items.length ? DELIVERY_FEE : 0);
+  const deliveryFee = 0;
+  const total = subtotal + deliveryFee;
 
   const formatPrice = (price) =>
     `Rs ${price.toLocaleString("en-LK")}`;
@@ -72,7 +38,7 @@ export default function Checkout() {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
@@ -97,24 +63,53 @@ export default function Checkout() {
       return;
     }
 
-    const orderId = `FC-${Date.now()}`;
-
-    const order = {
-      customer: form,
-      orderId,
-      createdAt: new Date().toISOString(),
-      items,
-      paymentMethod,
-      subtotal,
-      deliveryFee: DELIVERY_FEE,
-      total,
-    };
-
+    setIsSubmitting(true);
     try {
+        const response = await fetch(`${API_URL}/orders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customer: `${form.firstName.trim()} ${form.lastName.trim()}`,
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            address: form.address.trim(),
+            type: "Delivery",
+            items: items.map(({ id, qty }) => ({ menuItemId: Number(id), qty })),
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Unable to place your order.");
+        }
+
+        const savedOrder = result.order;
+        const order = {
+          ...savedOrder,
+          orderId: savedOrder.id,
+          customer: {
+            firstName: form.firstName.trim(),
+            lastName: form.lastName.trim(),
+            email: form.email.trim(),
+            phone: savedOrder.phone,
+            address: savedOrder.address,
+          },
+          items: savedOrder.items.map((savedItem) => {
+            const cartItem = items.find((item) => item.name === savedItem.name);
+            return {
+              ...savedItem,
+              quantity: savedItem.qty,
+              image: cartItem?.image,
+            };
+          }),
+          paymentMethod,
+        };
         localStorage.setItem("flameCrustLastOrder", JSON.stringify(order));
+        clearCart();
         navigate("/order-confirmation", { state: { order } });
-    } catch {
-        setError("Unable to save your order details. Please try again.");
+    } catch (submitError) {
+        setError(submitError.message || "Unable to save your order details. Please try again.");
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
@@ -278,12 +273,10 @@ export default function Checkout() {
                         {item.name}
                       </span>
                       <span className="shrink-0 whitespace-nowrap">
-                        {formatPrice(item.price * item.quantity)}
+                        {formatPrice(item.price * item.qty)}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-gray-400">
-                      {item.size} · ×{item.quantity}
-                    </p>
+                    <p className="mt-1 text-xs text-gray-400">×{item.qty}</p>
                   </div>
                 ))}
               </div>
@@ -304,7 +297,7 @@ export default function Checkout() {
                 <div className="flex justify-between gap-3 text-gray-400">
                   <span>Delivery Fee</span>
                   <span className="whitespace-nowrap text-white">
-                    {formatPrice(items.length ? DELIVERY_FEE : 0)}
+                    {formatPrice(deliveryFee)}
                   </span>
                 </div>
               </div>
@@ -318,9 +311,10 @@ export default function Checkout() {
 
               <button
                 type="submit"
+                disabled={isSubmitting || items.length === 0}
                 className="mt-7 w-full rounded-lg bg-gradient-to-r from-[#F47A20] to-[#E5252A] px-4 py-3 font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#F47A20] focus:ring-offset-2 focus:ring-offset-[#1B1B1B]"
               >
-                Confirm Order
+                {isSubmitting ? "Saving Order…" : "Confirm Order"}
               </button>
 
               <button

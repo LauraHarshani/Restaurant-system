@@ -1,11 +1,13 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 import heroVideo from '../assets/hero-video.mp4';
 
 const Home = () => {
   const navigate = useNavigate(); 
+  const { addToCart } = useCart();
   const [homeData, setHomeData] = useState({
     mainHeadline: "Flame & Crust",
     tagline: "Where urban fire meets gourmet craft. Burgers seared over open flame, pizzas born in 900-degree ovens, and loaded fries that redefine indulgence.",
@@ -67,11 +69,15 @@ const Home = () => {
       });
   }, []);
 
-  // Add to Cart functionality saving to LocalStorage
   const handleAddToCart = (dish) => {
-    const existingCart = JSON.parse(localStorage.getItem('cartItems')) || [];
-    const updatedCart = [...existingCart, { ...dish, quantity: 1 }];
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    const price = Number(String(dish.price).replace(/[^\d.]/g, ''));
+    addToCart({
+      ...dish,
+      id: dish.id ?? `home-${dish.name}`,
+      price,
+      image: dish.image || dish.img,
+      available: true,
+    });
     alert(`${dish.name} added to cart successfully! 🛒`);
   };
 
