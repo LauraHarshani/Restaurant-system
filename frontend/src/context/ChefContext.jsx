@@ -1,41 +1,59 @@
 ﻿import { createContext, useContext, useState, useEffect } from "react";
-import { chefs as initialChefs } from "../data/mockData";
+import axios from "axios";
 
 const ChefContext = createContext();
+const API_URL = "http://localhost:5000/api/chefs";
 
-function loadChefs() {
-  const saved = localStorage.getItem("flame_chefs_v2");
+export function ChefProvider({ children }) {
+  const [chefs, setChefs] = useState([]);
 
-  if (!saved) {
-    return initialChefs;
-  }
+  const fetchChefs = async () => {
+    try {
+      const res = await axios.get(API_URL);
+      setChefs(res.data);
+    } catch (error) {
+      console.error("Error fetching chefs:", error);
+    }
+  };
 
-  const chefs = JSON.parse(saved);
-  const previousMayaImage =
-    "https://images.unsplash.com/photo-1583394293214-28a5b42f7a72?w=800";
-  const currentMayaImage = initialChefs.find(
-    (chef) => chef.id === 2
-  ).image;
+  useEffect(() => {
+    fetchChefs();
+  }, []);
 
-  return chefs.map((chef) =>
-    chef.name === "Maya Fernando" && chef.image === previousMayaImage
-      ? { ...chef, image: currentMayaImage }
-      : chef
+  const addChef = async (newChef) => {
+    try {
+      await axios.post(API_URL, newChef);
+      fetchChefs();
+    } catch (error) {
+      console.error("Error adding chef:", error);
+    }
+  };
+
+  const updateChef = async (updatedChef) => {
+    try {
+      await axios.put(`${API_URL}/${updatedChef.id}`, updatedChef);
+      fetchChefs();
+    } catch (error) {
+      console.error("Error updating chef:", error);
+    }
+  };
+
+  const deleteChef = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      fetchChefs();
+    } catch (error) {
+      console.error("Error deleting chef:", error);
+    }
+  };
+
+  return (
+    <ChefContext.Provider value={{ chefs, addChef, updateChef, deleteChef }}>
+      {children}
+    </ChefContext.Provider>
   );
 }
 
-export function ChefProvider({ children }) {
-  const [chefs, setChefs] = useState(loadChefs);
-
-  useEffect(() => {
-    localStorage.setItem("flame_chefs_v2", JSON.stringify(chefs));
-  }, [chefs]);
-
-  const updateChef = (updatedChef) => { setChefs(chefs.map(c => c.id === updatedChef.id ? updatedChef : c)); };
-  const addChef = (newChef) => { setChefs([...chefs, { ...newChef, id: Date.now() }]); };
-  const deleteChef = (id) => { setChefs(chefs.filter(c => c.id !== id)); };
-
-  return <ChefContext.Provider value={{ chefs, updateChef, addChef, deleteChef }}>{children}</ChefContext.Provider>;
+export function useChefs() {
+  return useContext(ChefContext);
 }
-
-export function useChefs() { return useContext(ChefContext); }

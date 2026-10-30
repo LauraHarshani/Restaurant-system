@@ -1,9 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../lib/prisma");
 
-// Task 19: Get menu (all items)
+// Task 18: Create menu
+router.post("/", async (req, res) => {
+  try {
+    const newItem = await prisma.menuItem.create({ data: req.body });
+    res.status(201).json(newItem);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Task 19: Get menu
 router.get("/", async (req, res) => {
   try {
     const menu = await prisma.menuItem.findMany();
@@ -26,16 +35,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Task 18: Create menu
-router.post("/", async (req, res) => {
-  try {
-    const newItem = await prisma.menuItem.create({ data: req.body });
-    res.status(201).json(newItem);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Task 21: Update menu
 router.put("/:id", async (req, res) => {
   try {
@@ -52,7 +51,9 @@ router.put("/:id", async (req, res) => {
 // Task 22: Delete menu
 router.delete("/:id", async (req, res) => {
   try {
-    await prisma.menuItem.delete({ where: { id: Number(req.params.id) } });
+    await prisma.menuItem.delete({
+      where: { id: Number(req.params.id) },
+    });
     res.json({ message: "Menu item deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });

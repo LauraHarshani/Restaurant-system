@@ -9,11 +9,18 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Routes Integration 
+// Routes Integration
+const chefRoutes = require('./routes/chefRoutes');
+const menuRoutes = require('./routes/menuRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+
 const homeRoutes = require('./routes/homeRoutes');
 const aboutRoutes = require('./routes/aboutRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
+app.use('/api/chefs', chefRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/content/home', homeRoutes);
 app.use('/api/content/about', aboutRoutes);
 app.use('/api/dashboard', dashboardRoutes);
