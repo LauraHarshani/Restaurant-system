@@ -1,7 +1,9 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Save, CheckCircle2 } from "lucide-react";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const DEFAULT_CONTACT = {
   email: "hello@flameandcrust.lk",
@@ -10,26 +12,71 @@ const DEFAULT_CONTACT = {
   mapUrl: "",
 };
 
-const STORAGE_KEY = "flameCrustContactInformation";
-
-function loadContactInformation() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    return saved
-      ? { ...DEFAULT_CONTACT, ...JSON.parse(saved) }
-      : DEFAULT_CONTACT;
-  } catch {
-    return DEFAULT_CONTACT;
-  }
+function mapApiToForm(details) {
+  return {
+    email: details.email || "",
+    phone: details.phone || "",
+    address: details.address || "",
+    mapUrl: details.googleMapsLocation || "",
+  };
 }
 
 export default function AdminContact() {
   const navigate = useNavigate();
 
-  const [contact, setContact] = useState(loadContactInformation);
+  const [contact, setContact] = useState(DEFAULT_CONTACT);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+
+  // Load contact information from the backend.
+  useEffect(() => {
+    const fetchContactInformation = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `${API_BASE_URL}/contact/details`
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        // No contact details have been saved yet.
+        if (response.status === 404) {
+          setContact(DEFAULT_CONTACT);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Unable to load contact information."
+          );
+        }
+
+        if (!data.details) {
+          setContact(DEFAULT_CONTACT);
+          return;
+        }
+
+        setContact(mapApiToForm(data.details));
+      } catch (fetchError) {
+        console.error(
+          "Unable to load contact information:",
+          fetchError
+        );
+        setError(
+          fetchError.message ||
+            "Unable to load contact information. Please check your backend connection."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactInformation();
+  }, []);
 
   const updateField = (field, value) => {
     setContact((current) => ({
@@ -41,39 +88,20 @@ export default function AdminContact() {
     setError("");
   };
 
-  const handleSave = (event) => {
-    event.preventDefault();
-
-    if (contact.mapUrl.trim() && !getMapEmbedUrl(contact.mapUrl)) {
-      setError("Please enter a valid Google Maps URL or embed URL.");
-      return;
-    }
-
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(contact));
-      setSaved(true);
-      setError("");
-    } catch (saveError) {
-      console.error("Unable to save contact information:", saveError);
-      setError("Unable to save changes in this browser.");
-    }
-  };
-
   function getMapEmbedUrl(url) {
     if (!url.trim()) {
-      return "https://maps.google.com/maps?q=Colombo%2003%2C%20Sri%20Lanka&output=embed";
+      return "";
     }
 
     try {
       const parsedUrl = new URL(url);
+      const hostname = parsedUrl.hostname.toLowerCase();
 
       if (!["https:", "http:"].includes(parsedUrl.protocol)) {
         return null;
       }
 
-      const hostname = parsedUrl.hostname.toLowerCase();
-
-      // Google Maps embed URLs.
+      // Google Maps embed URL.
       if (
         ["www.google.com", "google.com"].includes(hostname) &&
         parsedUrl.pathname.startsWith("/maps/embed")
@@ -81,7 +109,7 @@ export default function AdminContact() {
         return parsedUrl.href;
       }
 
-      // Google Maps search and location URLs.
+      // Google Maps search or location URL.
       if (
         ["www.google.com", "google.com", "maps.google.com"].includes(
           hostname
@@ -97,21 +125,97 @@ export default function AdminContact() {
           )}&output=embed`;
         }
 
+        // Convert a maps URL containing a place/path into a search.
+        const path = parsedUrl.pathname;
+
+        if (path && path !== "/") {
+          return `https://maps.google.com/maps?q=${encodeURIComponent(
+            `https://www.google.com${path}`
+          )}&output=embed`;
+        }
+
         return null;
       }
 
-      // Short Google Maps links may redirect to a full map URL.
+      // Short Google Maps links may not work directly in an iframe.
       if (hostname === "maps.app.goo.gl") {
-        return parsedUrl.href;
+        return null;
       }
 
       return null;
     } catch {
+      // Allow a plain location/address as an alternative.
+      if (!/^https?:\/\//i.test(url.trim())) {
+        return `https://maps.google.com/maps?q=${encodeURIComponent(
+          url.trim()
+        )}&output=embed`;
+      }
+
       return null;
     }
   }
 
   const mapEmbedUrl = getMapEmbedUrl(contact.mapUrl);
+
+  const handleSave = async (event) => {
+    event.preventDefault();
+
+    if (contact.mapUrl.trim() && !mapEmbedUrl) {
+      setError(
+        "Please enter a valid Google Maps URL or a location/address."
+      );
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setSaved(false);
+      setError("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/contact/details`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: contact.email.trim(),
+            phone: contact.phone.trim(),
+            address: contact.address.trim(),
+            googleMapsLocation: contact.mapUrl.trim(),
+          }),
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to save contact information."
+        );
+      }
+
+      // Use the saved backend data when it is returned.
+      if (data.details) {
+        setContact(mapApiToForm(data.details));
+      }
+
+      setSaved(true);
+    } catch (saveError) {
+      console.error(
+        "Unable to save contact information:",
+        saveError
+      );
+
+      setError(
+        saveError.message ||
+          "Unable to save changes. Please check your backend connection."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleCancel = () => {
     navigate("/admin/messages");
@@ -127,7 +231,7 @@ export default function AdminContact() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Manage the contact details of the flame &amp; crust
+            Manage the contact details of Flame &amp; Crust
           </p>
         </div>
 
@@ -135,7 +239,8 @@ export default function AdminContact() {
           <button
             type="button"
             onClick={handleCancel}
-            className="inline-flex min-w-[105px] items-center justify-center rounded-lg border border-gray-300 bg-[#f1f1f1] px-5 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-gray-200"
+            disabled={saving}
+            className="inline-flex min-w-[105px] items-center justify-center rounded-lg border border-gray-300 bg-[#f1f1f1] px-5 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
           </button>
@@ -143,13 +248,24 @@ export default function AdminContact() {
           <button
             type="submit"
             form="contact-information-form"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ff6b00] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#e85f00]"
+            disabled={loading || saving}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ff6b00] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#e85f00] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save size={16} />
-            Save Changes
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
+
+      {/* Loading message */}
+      {loading && (
+        <p
+          role="status"
+          className="mx-auto mb-5 max-w-[910px] text-sm text-gray-500"
+        >
+          Loading contact information...
+        </p>
+      )}
 
       {/* Success message */}
       {saved && (
@@ -192,12 +308,13 @@ export default function AdminContact() {
               <input
                 type="email"
                 required
+                disabled={loading || saving}
                 value={contact.email}
                 onChange={(event) =>
                   updateField("email", event.target.value)
                 }
                 placeholder="Enter restaurant email"
-                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10"
+                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10 disabled:bg-gray-100"
               />
             </label>
 
@@ -209,12 +326,13 @@ export default function AdminContact() {
               <input
                 type="tel"
                 required
+                disabled={loading || saving}
                 value={contact.phone}
                 onChange={(event) =>
                   updateField("phone", event.target.value)
                 }
                 placeholder="Enter restaurant phone number"
-                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10"
+                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10 disabled:bg-gray-100"
               />
             </label>
 
@@ -226,12 +344,13 @@ export default function AdminContact() {
               <input
                 type="text"
                 required
+                disabled={loading || saving}
                 value={contact.address}
                 onChange={(event) =>
                   updateField("address", event.target.value)
                 }
                 placeholder="Enter restaurant address"
-                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10"
+                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10 disabled:bg-gray-100"
               />
             </label>
           </div>
@@ -246,23 +365,26 @@ export default function AdminContact() {
           <div className="space-y-6 px-0 sm:px-7">
             <label className="block">
               <span className="mb-2 block text-sm font-medium">
-                Google map embed URL
+                Google map URL or location
               </span>
 
               <input
-                type="url"
+                type="text"
+                disabled={loading || saving}
                 value={contact.mapUrl}
                 onChange={(event) =>
                   updateField("mapUrl", event.target.value)
                 }
-                placeholder="Paste your Google map embed URL here"
-                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition placeholder:text-gray-400 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10"
+                placeholder="Paste a Google Maps URL or enter a location"
+                className="h-[46px] w-full rounded-md border border-gray-400 bg-white px-4 text-sm outline-none transition placeholder:text-gray-400 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00]/10 disabled:bg-gray-100"
               />
             </label>
 
             {contact.mapUrl.trim() && !mapEmbedUrl && (
               <p className="text-sm text-red-600">
-                Enter a valid Google Maps URL or embed URL.
+                Enter a valid Google Maps URL or a location/address.
+                Short maps.app.goo.gl links should be replaced with a
+                full Google Maps URL.
               </p>
             )}
 
@@ -284,7 +406,7 @@ export default function AdminContact() {
                 />
               ) : (
                 <div className="flex h-[215px] items-center justify-center bg-gray-100 px-5 text-center text-sm text-gray-500">
-                  Enter a Google Maps URL to preview the location.
+                  Enter a Google Maps URL or location to preview the map.
                 </div>
               )}
             </div>
@@ -296,17 +418,19 @@ export default function AdminContact() {
           <button
             type="button"
             onClick={handleCancel}
-            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium hover:bg-gray-50"
+            disabled={saving}
+            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#ff6b00] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#e85f00]"
+            disabled={loading || saving}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#ff6b00] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#e85f00] disabled:opacity-60"
           >
             <Save size={16} />
-            Save Changes
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>
