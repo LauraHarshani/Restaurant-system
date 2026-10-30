@@ -77,8 +77,33 @@ model ContactMessage {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
+  subject   String  @default("No subject")
   message   String
+  isRead    Boolean @default(false)
+  replies   ContactReply[]
+  repliedAt DateTime?
   createdAt DateTime @default(now())
+}
+
+// Each reply is stored as a separate database record.
+model ContactReply {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  reply     String
+  createdAt DateTime @default(now())
+
+  // Connect each reply to its original customer message.
+  message   ContactMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+
+model ContactDetails {
+  id                Int      @id @default(autoincrement())
+  address           String
+  phone             String
+  email             String
+  googleMapsLocation String
+  updatedAt         DateTime @updatedAt
 }
 
 model PageContent {
