@@ -7,7 +7,7 @@ export default function CreateOrder() {
   const navigate = useNavigate(); const { menuItems } = useMenu();
   const [customer, setCustomer] = useState({ name: "Nethmi Perera", phone: "+94 77 234 5678", email: "nethmi.perera@gmail.com", address: "24 Flower Road, Colombo 03", instructions: "Call on arrival. Please use the front entrance.", note: "No onions in the burgers, please." });
   const [fulfilment, setFulfilment] = useState("Delivery");
-  const [cart, setCart] = useState([{ ...menuItems[0], qty: 2 }, { ...menuItems[2], qty: 1 }]);
+  const [cart, setCart] = useState([]);
   const [search, setSearch] = useState(""); const [activeCategory, setActiveCategory] = useState("All items");
   const addToCart = (item) => { const existing = cart.find((i) => i.id === item.id); if (existing) { setCart(cart.map((i) => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)); } else { setCart([...cart, { ...item, qty: 1 }]); } };
   const removeFromCart = (id) => { setCart(cart.filter((item) => item.id !== id)); };

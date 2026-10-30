@@ -13,3 +13,5 @@ const adapter = new PrismaLibSql({ url: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
 module.exports = prisma;
+module.exports.prisma = prisma;
+module.exports.default = prisma;

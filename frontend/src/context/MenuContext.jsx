@@ -1,24 +1,72 @@
 ﻿import { createContext, useContext, useState, useEffect } from "react";
-import { menuItems as initialMenuItems } from "../data/mockData";
+import axios from "axios";
 
 const MenuContext = createContext();
+const API_URL = "http://localhost:5000/api/menu";
 
 export function MenuProvider({ children }) {
-  const [menuItems, setMenuItems] = useState(() => {
-    const saved = localStorage.getItem("flame_menu_v2");
-    return saved ? JSON.parse(saved) : initialMenuItems;
-  });
+  const [menuItems, setMenuItems] = useState([]);
+
+  const fetchMenu = async () => {
+    try {
+      const res = await axios.get(API_URL);
+      setMenuItems(res.data);
+    } catch (error) {
+      console.error("Error fetching menu:", error);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem("flame_menu_v2", JSON.stringify(menuItems));
-  }, [menuItems]);
+    fetchMenu();
+  }, []);
 
-  const addDish = (newDish) => { setMenuItems([...menuItems, { ...newDish, id: Date.now() }]); };
-  const updateDish = (updatedDish) => { setMenuItems(menuItems.map(item => item.id === updatedDish.id ? updatedDish : item)); };
-  const deleteDish = (id) => { setMenuItems(menuItems.filter(item => item.id !== id)); };
-  const toggleAvailability = (id) => { setMenuItems(menuItems.map(item => item.id === id ? { ...item, available: !item.available } : item)); };
+  const addDish = async (newDish) => {
+    try {
+      await axios.post(API_URL, newDish);
+      fetchMenu();
+    } catch (error) {
+      console.error("Error adding dish:", error);
+      alert("Dish add karanna bari una: " + error.message);
+    }
+  };
 
-  return <MenuContext.Provider value={{ menuItems, addDish, updateDish, deleteDish, toggleAvailability }}>{children}</MenuContext.Provider>;
+  const updateDish = async (updatedDish) => {
+    try {
+      await axios.put(`${API_URL}/${updatedDish.id}`, updatedDish);
+      fetchMenu();
+    } catch (error) {
+      console.error("Error updating dish:", error);
+    }
+  };
+
+  const deleteDish = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      fetchMenu();
+    } catch (error) {
+      console.error("Error deleting dish:", error);
+    }
+  };
+
+  const toggleAvailability = async (id) => {
+    const item = menuItems.find((i) => i.id === id);
+    if (item) {
+      try {
+        await axios.put(`${API_URL}/${id}`, { available: !item.available });
+        fetchMenu();
+      } catch (error) {
+        console.error("Error toggling availability:", error);
+      }
+    }
+  };
+
+  return (
+    <MenuContext.Provider value={{ menuItems, addDish, updateDish, deleteDish, toggleAvailability }}>
+      {children}
+    </MenuContext.Provider>
+  );
 }
 
-export function useMenu() { return useContext(MenuContext); }
+export function useMenu() {
+  return useContext(MenuContext);
+}

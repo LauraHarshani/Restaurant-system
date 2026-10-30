@@ -13,3 +13,4 @@ const adapter = new PrismaLibSql({
 });
 
 export const prisma = new PrismaClient({ adapter });
+export default prisma;
