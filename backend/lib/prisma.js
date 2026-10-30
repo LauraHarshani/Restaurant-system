@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require("../generated/prisma/client.ts");
 const { PrismaLibSql } = require("@prisma/adapter-libsql");
 
 const databaseUrl = process.env.DATABASE_URL;
