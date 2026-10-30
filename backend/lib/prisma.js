@@ -1,16 +1,19 @@
 require("dotenv").config();
 
-const { PrismaClient } = require("../generated/prisma/client.ts");
-const { PrismaLibSql } = require("@prisma/adapter-libsql");
+const databaseEnvironment = process.env.DATABASE_ENV || (process.env.NODE_ENV === "production" ? "" : "sqlite");
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not configured in .env");
+if (process.env.NODE_ENV === "production" && databaseEnvironment !== "mysql") {
+  throw new Error('Production requires DATABASE_ENV="mysql"; refusing to start with a different database.');
 }
 
-const adapter = new PrismaLibSql({ url: databaseUrl });
-const prisma = new PrismaClient({ adapter });
+if (databaseEnvironment !== "sqlite" && databaseEnvironment !== "mysql") {
+  throw new Error('DATABASE_ENV must be explicitly set to "sqlite" or "mysql".');
+}
+
+const clientModule = databaseEnvironment === "mysql"
+  ? require("./prisma.mysql.ts")
+  : require("./prisma.sqlite.ts");
+const prisma = clientModule.prisma || clientModule.default;
 
 module.exports = prisma;
 module.exports.prisma = prisma;

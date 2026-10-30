@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client"
+  output = "../generated/sqlite"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+}
+
+model Chef {
+  id        Int     @id @default(autoincrement())
+  name      String
+  title     String
+  bio       String
+  specialty String
+  image     String
+  status    String  @default("On duty")
+  shift     String
+  email     String  @unique
+  phone     String
+  featured  Boolean @default(false)
+}
+
+model MenuItem {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  category    String
+  chef        String
+  image       String
+  available   Boolean @default(true)
+  code        String  @unique
+  featured    Boolean @default(false)
+  prepTime    String
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Order {
+  id          String      @id
+  customer    String
+  email       String?
+  phone       String
+  address     String
+  type        String
+  status      String      @default("New")
+  subtotal    Float
+  deliveryFee Float
+  total       Float
+  note        String?
+  createdAt   DateTime    @default(now())
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id      Int     @id @default(autoincrement())
+  orderId String
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  name    String
+  qty     Int
+  price   Float
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String  @default("No subject")
+  message   String
+  isRead    Boolean @default(false)
+  replies   ContactReply[]
+  repliedAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+// Each reply is stored as a separate database record.
+model ContactReply {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  reply     String
+  createdAt DateTime @default(now())
+
+  // Connect each reply to its original customer message.
+  message   ContactMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+
+model ContactDetails {
+  id                Int      @id @default(autoincrement())
+  address           String
+  phone             String
+  email             String
+  googleMapsLocation String
+  updatedAt         DateTime @updatedAt
+}
+
+model PageContent {
+  id        Int      @id @default(autoincrement())
+  page      String
+  key       String
+  content   String
+  updatedAt DateTime @updatedAt
+}

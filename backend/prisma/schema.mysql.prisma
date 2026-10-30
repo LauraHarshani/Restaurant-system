@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client"
+  output = "../generated/mysql"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+}
+
+model Chef {
+  id        Int     @id @default(autoincrement())
+  name      String
+  title     String
+  bio       String    @db.Text
+  specialty String
+  image     String    @db.LongText
+  status    String  @default("On duty")
+  shift     String
+  email     String  @unique
+  phone     String
+  featured  Boolean @default(false)
+}
+
+model MenuItem {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String   @db.Text
+  price       Float
+  category    String
+  chef        String
+  image       String   @db.LongText
+  available   Boolean @default(true)
+  code        String  @unique
+  featured    Boolean @default(false)
+  prepTime    String
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Order {
+  id          String      @id
+  customer    String
+  email       String?
+  phone       String
+  address     String      @db.Text
+  type        String
+  status      String      @default("New")
+  subtotal    Float
+  deliveryFee Float
+  total       Float
+  note        String?     @db.Text
+  createdAt   DateTime    @default(now())
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id      Int     @id @default(autoincrement())
+  orderId String
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  name    String
+  qty     Int
+  price   Float
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String  @default("No subject")
+  message   String   @db.LongText
+  isRead    Boolean @default(false)
+  replies   ContactReply[]
+  repliedAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+// Each reply is stored as a separate database record.
+model ContactReply {
+  id        Int      @id @default(autoincrement())
+  messageId Int
+  reply     String   @db.LongText
+  createdAt DateTime @default(now())
+
+  // Connect each reply to its original customer message.
+  message   ContactMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+
+model ContactDetails {
+  id                Int      @id @default(autoincrement())
+  address           String   @db.Text
+  phone             String
+  email             String
+  googleMapsLocation String   @db.Text
+  updatedAt         DateTime @updatedAt
+}
+
+model PageContent {
+  id        Int      @id @default(autoincrement())
+  page      String
+  key       String
+  content   String   @db.LongText
+  updatedAt DateTime @updatedAt
+}

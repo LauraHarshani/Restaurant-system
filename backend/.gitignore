@@ -2,7 +2,8 @@
 # Environment variables and secrets
 .env
 .env.*
-!.env.example
+.env.example
+.env.production.example
 
 # Dependencies
 node_modules/
@@ -23,6 +24,8 @@ dev.db
 
 # Generated Prisma Client
 generated/prisma/
+generated/sqlite/
+generated/mysql/
 
 # Build outputs
 dist/

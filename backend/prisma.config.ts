@@ -1,12 +1,2 @@
-﻿import "dotenv/config";
-import { defineConfig, env } from "@prisma/config";
-
-export default defineConfig({
-  schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-  },
-  datasource: {
-    url: env("DATABASE_URL"),
-  },
-});
+// Backwards-compatible default: bare Prisma CLI commands stay on local SQLite.
+export { default } from "./prisma.sqlite.config.ts";
