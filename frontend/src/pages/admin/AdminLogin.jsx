@@ -10,8 +10,8 @@ import {
   Flame,
 } from "lucide-react";
 
-const DEMO_EMAIL = "admin@ex.com";
-const DEMO_PASSWORD = "admin123";
+// Backend API URL.
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -23,7 +23,8 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  // Handle admin login using the backend authentication API.
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -34,79 +35,110 @@ export default function AdminLogin() {
 
     setIsLoading(true);
 
-    // Temporary authentication
-    setTimeout(() => {
-      if (
-        email.trim().toLowerCase() === DEMO_EMAIL &&
-        password === DEMO_PASSWORD
-      ) {
-        
-        const storage = rememberMe ? localStorage : sessionStorage;
-        storage.setItem("adminToken", "demo");
+    try {
+      // Send login credentials to the backend.
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
 
-        navigate("/admin/dashboard");
-      } else {
-        setError("Invalid email or password. Please try again.");
+      const data = await response.json();
+
+      // Display backend authentication errors.
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Invalid email or password.");
       }
 
+      // Check that the backend returned a token and admin details.
+      if (!data.token || data.admin?.role !== "ADMIN") {
+        throw new Error("Invalid authentication response.");
+      }
+
+      // Clear old tokens to avoid storing multiple sessions.
+      localStorage.removeItem("adminToken");
+      sessionStorage.removeItem("adminToken");
+
+      // Store the JWT according to the Remember me selection.
+      const storage = rememberMe ? localStorage : sessionStorage;
+
+      storage.setItem("adminToken", data.token);
+
+      // Store the admin information for convenient UI display.
+      storage.setItem("adminProfile", JSON.stringify(data.admin));
+
+      // Navigate to the admin dashboard.
+      navigate("/admin/dashboard", { replace: true });
+    } catch (err) {
+      console.error("Admin login error:", err);
+      setError(err.message || "Unable to connect to the server.");
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] font-sans text-[#1e1e1e]">
       <div className="grid min-h-screen lg:grid-cols-2">
 
-        {/* Left branding panel */}  
+        {/* Left branding panel */}
         <section className="relative hidden min-h-screen overflow-hidden rounded-r-[3rem] bg-black lg:block">
-            {/* Background image */}
-            <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{
-                backgroundImage: "url('/Images/login-img.jpg')",
-                }}
-            />
 
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/95" />
+          {/* Background image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: "url('/Images/login-img.jpg')",
+            }}
+          />
 
-            {/* Branding content */}
-            <div className="relative z-10 flex min-h-screen flex-col justify-between p-10 xl:p-12">
-                {/* Logo */}
-                <div className="flex items-center gap-3">
-                <span className="text-4xl">🔥</span>
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/95" />
 
-                <span className="font-logo text-3xl font-bold text-white">
-                    Flame <span className="text-[#ff6b00]">&amp;Crust</span>
-                </span>
-                </div>
+          {/* Branding content */}
+          <div className="relative z-10 flex min-h-screen flex-col justify-between p-10 xl:p-12">
 
-                {/* Bottom heading and description */}
-                <div className="max-w-xl pb-10">
-                <p className="mb-7 text-sm font-semibold uppercase tracking-[0.18em] text-[#ff6b00]">
-                    THE FLAME &amp; CRUST EXPERIENCE
-                </p>
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <span className="text-4xl">🔥</span>
 
-                <h1 className="font-serif text-5xl font-bold leading-tight text-white xl:text-6xl">
-                    Where Great
-                    <br />
-                    <span className="text-[#ff6b00]">Food</span> Begins.
-                </h1>
-
-                <p className="mt-5 text-base text-gray-200">
-                    Your restaurant, managed in one place.
-                </p>
-                </div>
+              <span className="font-logo text-3xl font-bold text-white">
+                Flame <span className="text-[#ff6b00]">&amp;Crust</span>
+              </span>
             </div>
-        </section>
 
+            {/* Heading and description */}
+            <div className="max-w-xl pb-10">
+              <p className="mb-7 text-sm font-semibold uppercase tracking-[0.18em] text-[#ff6b00]">
+                THE FLAME &amp; CRUST EXPERIENCE
+              </p>
+
+              <h1 className="font-serif text-5xl font-bold leading-tight text-white xl:text-6xl">
+                Where Great
+                <br />
+                <span className="text-[#ff6b00]">Food</span> Begins.
+              </h1>
+
+              <p className="mt-5 text-base text-gray-200">
+                Your restaurant, managed in one place.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Right login panel */}
         <section className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-10">
           <div className="w-full max-w-md">
+
             {/* Mobile logo */}
             <div className="mb-10 flex items-center justify-center gap-2 lg:hidden">
               <Flame size={32} className="text-[#ff6b00]" />
+
               <span className="font-logo text-2xl font-bold">
                 Flame{" "}
                 <span className="text-[#ff6b00]">&amp;Crust</span>
@@ -114,6 +146,8 @@ export default function AdminLogin() {
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xl shadow-black/5 sm:p-9">
+
+              {/* Login heading */}
               <div className="mb-8 text-center">
                 <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fff0e5] text-[#ff6b00]">
                   <ShieldCheck size={29} />
@@ -132,7 +166,8 @@ export default function AdminLogin() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Email */}
+
+                {/* Email input */}
                 <div>
                   <label
                     htmlFor="admin-email"
@@ -162,7 +197,7 @@ export default function AdminLogin() {
                   </div>
                 </div>
 
-                {/* Password */}
+                {/* Password input */}
                 <div>
                   <label
                     htmlFor="admin-password"
@@ -193,11 +228,7 @@ export default function AdminLogin() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      aria-label={
-                        showPassword
-                          ? "Hide password"
-                          : "Show password"
-                      }
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                       className="mr-3 rounded p-1 text-gray-500 hover:text-[#ff6b00]"
                     >
                       {showPassword ? (
@@ -215,16 +246,14 @@ export default function AdminLogin() {
                     <input
                       type="checkbox"
                       checked={rememberMe}
-                      onChange={(e) =>
-                        setRememberMe(e.target.checked)
-                      }
+                      onChange={(e) => setRememberMe(e.target.checked)}
                       className="h-4 w-4 accent-[#ff6b00]"
                     />
                     Remember me
                   </label>
                 </div>
 
-                {/* Error */}
+                {/* Authentication error */}
                 {error && (
                   <div
                     role="alert"
@@ -234,7 +263,7 @@ export default function AdminLogin() {
                   </div>
                 )}
 
-                {/* Submit */}
+                {/* Submit button */}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -244,12 +273,10 @@ export default function AdminLogin() {
                 </button>
               </form>
 
+              {/* Footer */}
               <div className="mt-7 border-t border-gray-100 pt-5 text-center">
                 <p className="text-xs text-gray-400">
-                  <ShieldCheck
-                    size={14}
-                    className="mr-1 inline-block"
-                  />
+                  <ShieldCheck size={14} className="mr-1 inline-block" />
                   Restricted access for authorized administrators
                 </p>
               </div>
