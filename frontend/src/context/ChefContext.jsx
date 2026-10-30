@@ -20,12 +20,13 @@ export function ChefProvider({ children }) {
     fetchChefs();
   }, []);
 
-  const addChef = async (newChef) => {
+    const addChef = async (newChef) => {
     try {
       await axios.post(API_URL, newChef);
-      fetchChefs();
+      fetchChefs(); 
     } catch (error) {
       console.error("Error adding chef:", error);
+      alert("Chef add karanna bari una: " + error.message);
     }
   };
 

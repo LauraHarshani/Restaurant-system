@@ -26,6 +26,7 @@ export function MenuProvider({ children }) {
       fetchMenu();
     } catch (error) {
       console.error("Error adding dish:", error);
+      alert("Dish add karanna bari una: " + error.message);
     }
   };
 
