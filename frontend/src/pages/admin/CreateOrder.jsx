@@ -3,11 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Search, Trash2 } from "lucide-react";
 import { useMenu } from "../../context/MenuContext";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export default function CreateOrder() {
   const navigate = useNavigate(); const { menuItems } = useMenu();
-  const [customer, setCustomer] = useState({ name: "Nethmi Perera", phone: "+94 77 234 5678", email: "nethmi.perera@gmail.com", address: "24 Flower Road, Colombo 03", instructions: "Call on arrival. Please use the front entrance.", note: "No onions in the burgers, please." });
+  const [customer, setCustomer] = useState({ name: "", phone: "", email: "", address: "", instructions: "", note: "" });
   const [fulfilment, setFulfilment] = useState("Delivery");
   const [cart, setCart] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState(""); const [activeCategory, setActiveCategory] = useState("All items");
   const addToCart = (item) => { const existing = cart.find((i) => i.id === item.id); if (existing) { setCart(cart.map((i) => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)); } else { setCart([...cart, { ...item, qty: 1 }]); } };
   const removeFromCart = (id) => { setCart(cart.filter((item) => item.id !== id)); };
@@ -15,12 +19,40 @@ export default function CreateOrder() {
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0); const deliveryFee = fulfilment === "Delivery" ? 300 : 0; const total = subtotal + deliveryFee;
   const categories = ["All items", "Burgers", "Pizza", "Wings"];
   const filteredMenu = menuItems.filter(item => { const matchCategory = activeCategory === "All items" || item.category === activeCategory; const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.code.toLowerCase().includes(search.toLowerCase()); return matchCategory && matchSearch; });
-  const handleCreateOrder = (e) => { e.preventDefault(); if (cart.length === 0) return alert("Please add items to the order first."); console.log("Order Created:", { customer, fulfilment, cart, subtotal, deliveryFee, total }); alert(`Order created successfully for ${customer.name}!\nTotal: Rs. ${total}.00`); navigate("/admin/orders"); };
+  const handleCreateOrder = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (cart.length === 0) return setError("Please add at least one menu item.");
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_URL}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: customer.name.trim(),
+          email: customer.email.trim(),
+          phone: customer.phone.trim(),
+          address: customer.address.trim(),
+          type: fulfilment,
+          note: [customer.instructions.trim(), customer.note.trim()].filter(Boolean).join(" · "),
+          items: cart.map(({ id, qty }) => ({ menuItemId: Number(id), qty })),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || "Unable to create order.");
+      navigate("/admin/orders");
+    } catch (submitError) {
+      setError(submitError.message || "Unable to create order. Check that the backend is running.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="text-[#1C1917] pb-10">
       <Link to="/admin/orders" className="text-gray-500 text-[13px] flex items-center gap-1 mb-4 hover:text-[#F97316] transition w-fit"><ChevronLeft size={14} /> Order Management / Create Order</Link>
       <div className="mb-8"><h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900 mb-1">Create Order</h1><p className="text-gray-500 text-[14px]">Enter the customer's details, select menu items and confirm fulfilment and payment.</p></div>
       <form onSubmit={handleCreateOrder} className="grid md:grid-cols-3 gap-6">
+        {error && <p role="alert" className="md:col-span-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm"><h2 className="font-bold text-[15px] mb-1">Customer details</h2><p className="text-[12px] text-gray-500 mb-5">Use these details for order updates and delivery contact.</p><div className="grid grid-cols-2 gap-5"><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Customer name *</label><input required value={customer.name} onChange={(e) => setCustomer({...customer, name: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316]" /></div><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Phone number *</label><input required value={customer.phone} onChange={(e) => setCustomer({...customer, phone: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316]" /></div><div className="col-span-2"><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Email address (optional)</label><input value={customer.email} onChange={(e) => setCustomer({...customer, email: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316]" /></div></div></div>
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm"><h2 className="font-bold text-[15px] mb-4">Fulfilment & delivery</h2><div className="grid grid-cols-3 gap-3 mb-6">{[{ id: "Delivery", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> }, { id: "Pickup", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg> }, { id: "Dine-in", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> }].map(type => (<div key={type.id} onClick={() => setFulfilment(type.id)} className={"border rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer transition " + (fulfilment === type.id ? "border-[#F97316] bg-[#F97316]/5 text-[#F97316]" : "border-gray-200 hover:bg-gray-50 text-gray-500")}>{type.icon}<span className="text-[13px] font-medium">{type.id}</span></div>))}</div><div className="space-y-4"><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Delivery address *</label><input required value={customer.address} onChange={(e) => setCustomer({...customer, address: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316]" /></div><div className="grid grid-cols-2 gap-5"><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Requested time *</label><select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316] text-gray-700 appearance-none bg-white"><option>As soon as possible</option></select></div><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Delivery fee (LKR)</label><input disabled value={`Rs. ${deliveryFee}.00`} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed" /></div></div><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Delivery instructions</label><input value={customer.instructions} onChange={(e) => setCustomer({...customer, instructions: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316]" /></div></div><p className="text-[11px] text-[#F97316] mt-4">Estimated delivery: 35–45 min after order confirmation</p></div>
@@ -31,7 +63,7 @@ export default function CreateOrder() {
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm"><h2 className="font-bold text-[15px] mb-4">Payment details</h2><div className="space-y-4"><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Payment method *</label><select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316] text-gray-700 appearance-none bg-white"><option>Cash on delivery</option><option>Card</option></select></div><div><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Payment status *</label><select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316] text-gray-700 appearance-none bg-white"><option>Unpaid</option><option>Paid</option></select></div></div><p className="text-[10px] text-gray-400 mt-4">Collect Rs.{total}.00 from the customer on delivery.</p></div>
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm"><h2 className="font-bold text-[15px] mb-4">Order notes</h2><label className="block text-[12px] font-medium text-[#1C1917] mb-1.5">Kitchen / customer note</label><textarea rows="3" value={customer.note} onChange={(e) => setCustomer({...customer, note: e.target.value})} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#F97316] resize-none"></textarea><p className="text-[10px] text-gray-400 mt-2">Shown to the kitchen team with the order.</p></div>
         </div>
-        <div className="col-span-1 md:col-span-3 flex justify-between items-center mt-4 pt-6 border-t border-gray-200"><p className="text-[12px] text-gray-400">* Required fields</p><div className="flex gap-3"><Link to="/admin/orders" className="px-6 py-2 border border-gray-200 rounded-lg text-[13px] font-medium text-[#1C1917] bg-white hover:bg-gray-50 transition flex items-center">Cancel</Link><button type="submit" className="bg-[#F97316] hover:bg-[#EA580C] text-white px-6 py-2 rounded-lg text-[13px] font-medium shadow-sm transition">Create order</button></div></div>
+        <div className="col-span-1 md:col-span-3 flex justify-between items-center mt-4 pt-6 border-t border-gray-200"><p className="text-[12px] text-gray-400">* Required fields</p><div className="flex gap-3"><Link to="/admin/orders" className="px-6 py-2 border border-gray-200 rounded-lg text-[13px] font-medium text-[#1C1917] bg-white hover:bg-gray-50 transition flex items-center">Cancel</Link><button disabled={isSubmitting} type="submit" className="bg-[#F97316] hover:bg-[#EA580C] text-white px-6 py-2 rounded-lg text-[13px] font-medium shadow-sm transition disabled:opacity-60">{isSubmitting ? "Saving…" : "Create order"}</button></div></div>
       </form>
     </div>
   );
