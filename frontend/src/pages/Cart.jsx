@@ -98,7 +98,7 @@ export default function Cart() {
                     </div>
 
                     {/* Quantity selector */}
-                    <div className="col-span-2 flex items-center justify-between border-t border-white/10 pt-3 sm:col-span-1 sm:border-0 sm:pt-0 lg:col-span-1 lg:justify-center">
+                    <div className="col-span-2 flex items-center justify-between border-t border-white/10 pt-3 sm:col-span-1 sm:border-0 sm:pt-0 lg:col-span-1 lg:-translate-x-6 lg:justify-start">
                         <QuantityControl
                         quantity={item.qty}
                         onDecrease={() => updateQty(item.id, -1)}
