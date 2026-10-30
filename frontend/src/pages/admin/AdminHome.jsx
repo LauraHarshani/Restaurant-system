@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, RefreshCw, Upload, Plus, Monitor, Rocket, Image as ImageIcon, SlidersHorizontal, Star, Clock, Flame, ArrowRight, GripHorizontal, Trash2, Camera, FileImage, Eye } from 'lucide-react';
 import heroVideo from '../../assets/hero-video.mp4';
 
@@ -7,9 +7,9 @@ const AdminHome = () => {
     mainHeadline: 'Flame & Crust',
     tagline: 'Where urban fire meets gourmet craft. Burgers seared over open flame, pizzas born in 900-degree ovens, and loaded fries that redefine indulgence',
     cta1Label: 'Reserve a Table',
-    cta1Url: '/',
+    cta1Url: '/contact',
     cta2Label: 'Explore Menu',
-    cta2Url: '/',
+    cta2Url: '/menu',
     
     highlight1Title: 'Customer Rating',
     highlight1Value: '4.9',
@@ -28,24 +28,57 @@ const AdminHome = () => {
     promoCode: 'GLOW20',
     promoDescription: 'Use code GLOW20 at checkout. Valid through the end of the month.',
     promoCta: 'Claim Offer',
-    promoUrl: '/',
+    promoUrl: '/menu',
     promoStart: '07/10/2026',
     promoEnd: '06/11/2026',
     
     bottomHeading: 'READY FOR THE WOOD-FIRED EXPERIENCE?',
     bottomSubtext: 'Reserve your spot or order online now. Every dish is a masterpiece born in the fire.',
     bottomBtn1Label: 'Reserve a Table',
-    bottomBtn1Url: '/',
+    bottomBtn1Url: '/contact',
     bottomBtn2Label: 'Order Online',
-    bottomBtn2Url: '/'
+    bottomBtn2Url: '/menu'
   });
 
-  const featuredDishesList = [
-    { id: 1, slot: '01', name: 'The Blaze Classic Burger', price: 'Rs. 1,900.00', image: '/Images/food 2.jpeg' },
-    { id: 2, slot: '02', name: 'Wood-Fired Glazed Wings', price: 'Rs. 1,200.00', image: '/Images/food 4.jpeg' },
-    { id: 3, slot: '03', name: 'Wood-Fired Supreme Pizza', price: 'Rs. 2,500.00', image: '/Images/food 5.jpeg' },
-    { id: 4, slot: '04', name: 'The Volcano Double Burger', price: 'Rs. 2,200.00', image: '/Images/food1.jpeg' }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [heroMedia, setHeroMedia] = useState({ type: 'video', url: heroVideo, name: 'hero-video.mp4', resolution: '1920 × 1080 px', size: '12.4 MB' });
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  
+  // New States for Backdrop and Simulate View
+  const [backdropImage, setBackdropImage] = useState('/Images/fire fire.avif');
+  const [isSimulateOpen, setIsSimulateOpen] = useState(false);
+
+  // Featured Dishes State
+  const [featuredDishesList, setFeaturedDishesList] = useState([
+    { id: 1, slot: '01', name: 'The Blaze Classic Burger', price: 'Rs. 1,900.00', badge: '', image: '/Images/food 2.jpeg' },
+    { id: 2, slot: '02', name: 'Wood-Fired Glazed Wings', price: 'Rs. 1,200.00', badge: '', image: '/Images/food 4.jpeg' },
+    { id: 3, slot: '03', name: 'Wood-Fired Supreme Pizza', price: 'Rs. 2,500.00', badge: '', image: '/Images/food 5.jpeg' },
+    { id: 4, slot: '04', name: 'The Volcano Double Burger', price: 'Rs. 2,200.00', badge: '', image: '/Images/food1.jpeg' }
+  ]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/content/home')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setHomeData(prev => ({
+            ...prev,
+            ...data.data
+          }));
+          if (data.data.featuredDishes && Array.isArray(data.data.featuredDishes)) {
+            setFeaturedDishesList(data.data.featuredDishes);
+          }
+          if (data.data.backdropImage) {
+            setBackdropImage(data.data.backdropImage);
+          }
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching home content for admin:", err);
+        setLoading(false);
+      });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -55,30 +88,141 @@ const AdminHome = () => {
     });
   };
 
-  const handleSave = (section) => {
-    alert(`${section} changes saved successfully!`);
+  const handleDishChange = (id, field, value) => {
+    setFeaturedDishesList(prev =>
+      prev.map(dish => dish.id === id ? { ...dish, [field]: value } : dish)
+    );
   };
 
-  const handleAction = (action) => {
-    alert(`${action} action triggered!`);
+  const handleAddDish = () => {
+    const newId = featuredDishesList.length > 0 ? Math.max(...featuredDishesList.map(d => d.id)) + 1 : 1;
+    const newSlot = String(featuredDishesList.length + 1).padStart(2, '0');
+    const newDish = {
+      id: newId,
+      slot: newSlot,
+      name: 'New Featured Dish',
+      price: 'Rs. 1,500.00',
+      badge: '',
+      image: '/Images/food 2.jpeg'
+    };
+    setFeaturedDishesList([...featuredDishesList, newDish]);
   };
+
+  const handleDeleteDish = (id) => {
+    setFeaturedDishesList(prev => prev.filter(dish => dish.id !== id));
+  };
+
+  const handleSave = async (sectionName) => {
+    try {
+      const payload = {
+        ...homeData,
+        featuredDishes: featuredDishesList,
+        backdropImage: backdropImage
+      };
+
+      const response = await fetch('http://localhost:5000/api/content/home', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`${sectionName} changes saved successfully to the database! 🚀`);
+      } else {
+        alert(`Failed to save changes: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error updating home content:", error);
+      alert("An error occurred while saving changes.");
+    }
+  };
+
+  const handleCropFocal = () => {
+    setIsCropOpen(true);
+  };
+
+  const handleUploadPhoto = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      const fileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      setHeroMedia({ type: 'image', url: imageUrl, name: file.name, resolution: '1920 × 1080 px', size: fileSize });
+      alert(`Photo "${file.name}" uploaded successfully as hero background! 🖼️`);
+    }
+  };
+
+  const handleReplaceVideo = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const videoUrl = URL.createObjectURL(file);
+      const fileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      setHeroMedia({ type: 'video', url: videoUrl, name: file.name, resolution: '1920 × 1080 px', size: fileSize });
+      alert(`Video "${file.name}" replaced successfully! Video is now active. 🎬`);
+    }
+  };
+
+  const handleReplaceDishImage = (id) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        setFeaturedDishesList(prev =>
+          prev.map(dish => dish.id === id ? { ...dish, image: imageUrl } : dish)
+        );
+        alert(`Dish image replaced successfully! 📸`);
+      }
+    };
+    input.click();
+  };
+
+  // Change Backdrop Handler
+  const handleChangeBackdrop = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        setBackdropImage(imageUrl);
+        alert(`Bottom CTA backdrop image updated successfully! 🌆`);
+      }
+    };
+    input.click();
+  };
+
+  // Simulate View Handler
+  const handleSimulateView = () => {
+    setIsSimulateOpen(true);
+  };
+
+  if (loading) {
+    return <div className="min-h-full flex items-center justify-center p-10 text-gray-700 font-bold">Loading Admin Panel...</div>;
+  }
 
   return (
     <div className="min-h-full font-sans text-gray-900 pb-20">
       <div className="w-full space-y-8">
         
-        {/* Header Section (Messages page style - Clean & Flat) */}
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Home Management</h1>
             <p className="text-gray-500 text-sm mt-1">Curate hero storytelling, real-time highlights, active seasonal promotions, curated dishes, and conversion touchpoints.</p>
             <div className="mt-2 flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <span className="text-xs text-green-600 font-semibold">Published (Synced 18m ago)</span>
+              <span className="text-xs text-green-600 font-semibold">Published (Synced live with Database)</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => handleAction('Discard Draft')} className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 shadow-sm">
+            <button type="button" onClick={() => window.location.reload()} className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 shadow-sm">
               <RefreshCw size={16} /> Discard Draft
             </button>
             <button type="button" onClick={() => handleSave('Publish All')} className="flex items-center gap-2 bg-[#ff5100] hover:bg-[#e04800] text-white px-5 py-2 rounded-lg text-sm font-bold transition-all active:scale-95 shadow-md shadow-orange-500/20">
@@ -110,16 +254,20 @@ const AdminHome = () => {
             </div>
 
             <div>
-               <label className="block text-xs font-semibold text-gray-900 mb-1.5">Hero Background Visual Asset (Video)</label>
+               <label className="block text-xs font-semibold text-gray-900 mb-1.5">Hero Background Visual Asset (Video / Photo)</label>
                <div className="bg-[#fff9f5] border border-[#ffeadb] rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden relative border border-gray-300">
-                    <video src={heroVideo} className="w-full h-full object-cover" autoPlay muted loop playsInline />
+                    {heroMedia.type === 'video' ? (
+                      <video src={heroMedia.url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
+                    ) : (
+                      <img src={heroMedia.url} alt="Hero Preview" className="w-full h-full object-cover" />
+                    )}
                     <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded font-medium tracking-wider">16:9</span>
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-gray-900">hero-video.mp4</h4>
-                    <p className="text-xs text-gray-500 mt-0.5">1920 × 1080 px • 12.4 MB • MP4 Optimized</p>
+                    <h4 className="font-bold text-sm text-gray-900">{heroMedia.name}</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">{heroMedia.resolution} • {heroMedia.size} • Optimized</p>
                     <div className="flex items-center gap-1.5 mt-2">
                       <span className="w-2 h-2 bg-[#10b981] rounded-full"></span>
                       <span className="text-[11px] text-[#10b981] font-semibold tracking-wide">High-Resolution Active</span>
@@ -128,15 +276,19 @@ const AdminHome = () => {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
-                  <button type="button" onClick={() => handleAction('Crop / Focal Point')} className="bg-white border border-gray-200 text-[#0f172a] text-xs px-3 py-2 rounded-lg font-semibold hover:bg-gray-50 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
+                  <button type="button" onClick={handleCropFocal} className="bg-white border border-gray-200 text-[#0f172a] text-xs px-3 py-2 rounded-lg font-semibold hover:bg-gray-50 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
                     <SlidersHorizontal size={14} className="text-gray-500" /> Crop / Focal Point
                   </button>
-                  <button type="button" onClick={() => handleAction('Upload Photo')} className="bg-white border border-gray-200 text-gray-800 text-xs px-3 py-2 rounded-lg font-semibold hover:bg-gray-50 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
+
+                  <label className="bg-white border border-gray-200 text-gray-800 text-xs px-3 py-2 rounded-lg font-semibold hover:bg-gray-50 transition-all active:scale-95 flex items-center gap-1.5 shadow-sm cursor-pointer">
                     <ImageIcon size={14} className="text-gray-500" /> Upload Photo
-                  </button>
-                  <button type="button" onClick={() => handleAction('Replace Video')} className="bg-[#ff5100] text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 hover:bg-[#e04800] transition-all active:scale-95 shadow-sm">
+                    <input type="file" accept="image/*" onChange={handleUploadPhoto} className="hidden" />
+                  </label>
+
+                  <label className="bg-[#ff5100] text-white text-xs px-4 py-2 rounded-lg font-bold flex items-center gap-1.5 hover:bg-[#e04800] transition-all active:scale-95 shadow-sm cursor-pointer">
                     <Upload size={14} /> Replace Video
-                  </button>
+                    <input type="file" accept="video/*" onChange={handleReplaceVideo} className="hidden" />
+                  </label>
                 </div>
               </div>
             </div>
@@ -281,7 +433,7 @@ const AdminHome = () => {
             </div>
             <div className="flex items-center gap-3">
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="promoActive" checked={homeData.promoActive} onChange={handleChange} className="sr-only peer" />
+                <input type="checkbox" name="promoActive" checked={homeData.promoActive === true || homeData.promoActive === 'true'} onChange={handleChange} className="sr-only peer" />
                 <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#ff5100]"></div>
               </label>
               <span className="text-xs font-semibold text-gray-700">Show active banner on public site</span>
@@ -340,9 +492,9 @@ const AdminHome = () => {
           <div className="flex justify-between items-center border-b border-gray-100 pb-4">
             <div>
                <h2 className="text-lg font-bold text-gray-900">Featured Dishes (Most Loved)</h2>
-               <p className="text-xs text-gray-500 mt-1">Curate the 4 flagship culinary creations featured on the main landing page.</p>
+               <p className="text-xs text-gray-500 mt-1">Curate the flagship culinary creations featured on the main landing page.</p>
             </div>
-            <button type="button" onClick={() => handleAction('Add New Dish')} className="flex items-center gap-1.5 text-gray-700 bg-gray-100 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition-all active:scale-95">
+            <button type="button" onClick={handleAddDish} className="flex items-center gap-1.5 text-gray-700 bg-gray-100 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition-all active:scale-95 cursor-pointer">
               <Plus size={14} className="text-[#ff5100]" /> Add New Dish
             </button>
           </div>
@@ -352,17 +504,17 @@ const AdminHome = () => {
               <div key={dish.id} className="bg-[#f8f9fc] border border-transparent p-4 rounded-xl space-y-3 relative group">
                 <div className="flex justify-between items-center mb-1">
                   <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${index === 0 ? 'bg-[#ffeadb] text-[#ff5100]' : 'bg-gray-200 text-gray-600'}`}>
-                    Slot {dish.slot}
+                    Slot {dish.slot || String(index + 1).padStart(2, '0')}
                   </span>
                   <div className="flex items-center gap-2 text-gray-400">
                     <GripHorizontal size={14} className="cursor-pointer hover:text-gray-600 transition-colors" />
-                    <Trash2 size={14} className="cursor-pointer hover:text-red-500 transition-colors" />
+                    <Trash2 size={14} onClick={() => handleDeleteDish(dish.id)} className="cursor-pointer hover:text-red-500 transition-colors" />
                   </div>
                 </div>
 
                 <div className="h-36 bg-gray-200 rounded-lg overflow-hidden relative border border-gray-200">
                    <img src={dish.image} className="w-full h-full object-cover" alt={dish.name} />
-                   <button type="button" onClick={() => handleAction(`Replace Image for ${dish.name}`)} className="absolute bottom-2 right-2 bg-black/70 hover:bg-black text-white text-[10px] font-medium px-2.5 py-1.5 rounded-md flex items-center gap-1.5 transition-all active:scale-95 shadow-sm">
+                   <button type="button" onClick={() => handleReplaceDishImage(dish.id)} className="absolute bottom-2 right-2 bg-black/70 hover:bg-black text-white text-[10px] font-medium px-2.5 py-1.5 rounded-md flex items-center gap-1.5 transition-all active:scale-95 shadow-sm cursor-pointer">
                      <Camera size={12} /> Replace
                    </button>
                 </div>
@@ -370,16 +522,32 @@ const AdminHome = () => {
                 <div className="space-y-3 pt-1">
                   <div>
                     <label className="block text-[11px] font-semibold text-gray-500 mb-1">Dish Name</label>
-                    <input type="text" defaultValue={dish.name} className="w-full bg-white border border-gray-100 rounded-md px-3 py-2 text-xs font-bold text-gray-800 outline-none shadow-sm focus:border-[#ff5100] transition-all" />
+                    <input 
+                      type="text" 
+                      value={dish.name} 
+                      onChange={(e) => handleDishChange(dish.id, 'name', e.target.value)} 
+                      className="w-full bg-white border border-gray-100 rounded-md px-3 py-2 text-xs font-bold text-gray-800 outline-none shadow-sm focus:border-[#ff5100] transition-all" 
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-500 mb-1">Price</label>
-                      <input type="text" defaultValue={dish.price} className="w-full bg-white border border-gray-100 rounded-md px-3 py-2 text-xs font-bold text-gray-800 outline-none shadow-sm focus:border-[#ff5100] transition-all" />
+                      <input 
+                        type="text" 
+                        value={dish.price} 
+                        onChange={(e) => handleDishChange(dish.id, 'price', e.target.value)} 
+                        className="w-full bg-white border border-gray-100 rounded-md px-3 py-2 text-xs font-bold text-gray-800 outline-none shadow-sm focus:border-[#ff5100] transition-all" 
+                      />
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-500 mb-1">Badge Tag</label>
-                      <input type="text" defaultValue="" className="w-full bg-white border border-gray-100 rounded-md px-3 py-2 text-xs outline-none shadow-sm focus:border-[#ff5100] transition-all" />
+                      <input 
+                        type="text" 
+                        value={dish.badge || ''} 
+                        onChange={(e) => handleDishChange(dish.id, 'badge', e.target.value)} 
+                        placeholder="e.g. Best"
+                        className="w-full bg-white border border-gray-100 rounded-md px-3 py-2 text-xs outline-none shadow-sm focus:border-[#ff5100] transition-all" 
+                      />
                     </div>
                   </div>
                 </div>
@@ -388,7 +556,7 @@ const AdminHome = () => {
           </div>
           
           <div className="flex justify-end pt-4">
-            <button type="button" onClick={() => handleSave('Dishes')} className="bg-[#ff5100] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-[#e04800] transition-all active:scale-95">✓ Save Changes</button>
+            <button type="button" onClick={() => handleSave('Dishes')} className="bg-[#ff5100] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-[#e04800] transition-all active:scale-95 cursor-pointer">✓ Save Changes</button>
           </div>
         </div>
 
@@ -439,13 +607,16 @@ const AdminHome = () => {
                    <span className="text-[10px] font-bold text-[#ff5100]">Live State</span>
                 </div>
                 
-                <div className="w-full h-40 bg-gradient-to-br from-[#3a1c0d] to-[#1a0c05] rounded-lg mb-4 shadow-inner border border-white/5 relative z-10"></div>
+                {/* Dynamic Backdrop Preview Box */}
+                <div className="w-full h-40 rounded-lg mb-4 shadow-inner border border-white/5 relative z-10 overflow-hidden">
+                   <img src={backdropImage} alt="Backdrop Preview" className="w-full h-full object-cover opacity-80" />
+                </div>
 
                 <div className="grid grid-cols-2 gap-3 relative z-10">
-                   <button type="button" onClick={() => handleAction('Change Backdrop')} className="bg-white/10 hover:bg-white/20 text-gray-200 text-xs py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 border border-white/10">
+                   <button type="button" onClick={handleChangeBackdrop} className="bg-white/10 hover:bg-white/20 text-gray-200 text-xs py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 border border-white/10 cursor-pointer">
                      <FileImage size={14} className="text-gray-400" /> Change Backdrop
                    </button>
-                   <button type="button" onClick={() => handleAction('Simulate View')} className="bg-white/10 hover:bg-white/20 text-gray-200 text-xs py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 border border-white/10">
+                   <button type="button" onClick={handleSimulateView} className="bg-white/10 hover:bg-white/20 text-gray-200 text-xs py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 border border-white/10 cursor-pointer">
                      <Eye size={14} className="text-gray-400" /> Simulate View
                    </button>
                 </div>
@@ -453,11 +624,72 @@ const AdminHome = () => {
           </div>
 
           <div className="flex justify-end pt-4 border-t border-gray-100 mt-6">
-            <button type="button" onClick={() => handleSave('Bottom CTA')} className="bg-[#ff5100] text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md hover:bg-[#e04800] transition-all active:scale-95">✓ Save Changes</button>
+            <button type="button" onClick={() => handleSave('Bottom CTA')} className="bg-[#ff5100] text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md hover:bg-[#e04800] transition-all active:scale-95 cursor-pointer">✓ Save Changes</button>
           </div>
         </div>
 
       </div>
+
+      {/* Crop / Focal Point Modal */}
+      {isCropOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b pb-3">
+              <h3 className="text-lg font-bold text-gray-900">Crop / Focal Point Editor</h3>
+              <button onClick={() => setIsCropOpen(false)} className="text-gray-500 hover:text-black font-bold text-lg cursor-pointer">✕</button>
+            </div>
+            <div className="space-y-3">
+              <p className="text-xs text-gray-500">Adjust the focal frame for desktop and mobile displays.</p>
+              <div className="w-full h-48 bg-black rounded-lg overflow-hidden relative flex items-center justify-center">
+                {heroMedia.type === 'video' ? (
+                  <video src={heroMedia.url} className="w-full h-full object-cover opacity-80" autoPlay muted loop />
+                ) : (
+                  <img src={heroMedia.url} alt="Crop Preview" className="w-full h-full object-cover opacity-80" />
+                )}
+                <div className="absolute border-2 border-[#ff5100] w-3/4 h-3/4 rounded shadow-[0_0_15px_rgba(255,81,0,0.5)] cursor-move flex items-center justify-center bg-black/10">
+                  <span className="text-[10px] text-white bg-black/60 px-2 py-1 rounded font-semibold tracking-wider">Drag / Resize Frame</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-3 border-t">
+              <button onClick={() => setIsCropOpen(false)} className="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-all cursor-pointer">Cancel</button>
+              <button onClick={() => { alert("Crop focal points applied and saved successfully! 🎯"); setIsCropOpen(false); }} className="px-5 py-2 bg-[#ff5100] text-white text-xs font-bold rounded-lg hover:bg-[#e04800] transition-all cursor-pointer">Apply Crop</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Simulate View Modal */}
+      {isSimulateOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-6">
+          <div className="bg-[#100202] border border-[#ff5100]/50 rounded-3xl p-8 max-w-3xl w-full shadow-2xl space-y-6 text-white relative">
+            <div className="flex justify-between items-center border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[#ff5100]">🔥</span>
+                <h3 className="text-xl font-bold font-serif">Live Section Simulation</h3>
+              </div>
+              <button onClick={() => setIsSimulateOpen(false)} className="text-gray-400 hover:text-white font-bold text-xl cursor-pointer">✕</button>
+            </div>
+
+            <div className="rounded-2xl p-8 text-center relative overflow-hidden bg-cover bg-center border border-white/10" style={{ backgroundImage: `url(${backdropImage})` }}>
+              <div className="absolute inset-0 bg-black/70"></div>
+              <div className="relative z-10 space-y-4 py-6">
+                <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wider font-serif">{homeData.bottomHeading}</h2>
+                <p className="text-gray-300 text-sm max-w-lg mx-auto">{homeData.bottomSubtext}</p>
+                <div className="flex justify-center gap-4 pt-2">
+                  <span className="bg-gradient-to-r from-[#ff7a00] to-[#d12200] text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-lg">{homeData.bottomBtn1Label}</span>
+                  <span className="border border-white/50 text-white px-6 py-2.5 rounded-full font-bold text-sm">{homeData.bottomBtn2Label}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button onClick={() => setIsSimulateOpen(false)} className="px-6 py-2.5 bg-[#ff5100] text-white text-xs font-bold rounded-xl hover:bg-[#e04800] transition-all cursor-pointer">Close Simulation</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

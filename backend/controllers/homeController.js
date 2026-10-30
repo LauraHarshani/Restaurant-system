@@ -2,21 +2,29 @@ const prismaModule = require('../lib/prisma');
 const prisma = prismaModule.prisma || prismaModule.default || prismaModule;
 
 /**
- * @desc    Get Home page content
+ * @desc    Get Home page content from the database
  * @route   GET /api/home
  * @access  Public
  */
 const getHomeContent = async (req, res) => {
   try {
+    // Fetch all home page content records from the database
     const homeContents = await prisma.pageContent.findMany({
       where: { page: 'home' }
     });
 
     const contentMap = {};
+    
+    // Map database records into a key-value object and safely parse JSON strings (like featuredDishes array)
     homeContents.forEach(item => {
-      contentMap[item.key] = item.content;
+      try {
+        contentMap[item.key] = JSON.parse(item.content);
+      } catch (e) {
+        contentMap[item.key] = item.content;
+      }
     });
 
+    // Return the fetched content or fallback to default data if empty
     return res.status(200).json({ 
       success: true, 
       data: Object.keys(contentMap).length > 0 ? contentMap : {
@@ -51,7 +59,7 @@ const getHomeContent = async (req, res) => {
 };
 
 /**
- * @desc    Update or create Home page content key-value pairs
+ * @desc    Update or create Home page content key-value pairs (supports arrays & objects like featuredDishes)
  * @route   PUT /api/home
  * @access  Private / Admin
  */
@@ -59,19 +67,26 @@ const updateHomeContent = async (req, res) => {
   try {
     const updates = req.body;
 
+    // Loop through each update item sent from the admin panel
     for (const [key, value] of Object.entries(updates)) {
+      // Check if the content key already exists in the database
       const existingRecord = await prisma.pageContent.findFirst({
         where: { page: 'home', key: key }
       });
 
+      // Convert objects or arrays (like featuredDishes) to JSON string before storing
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+
       if (existingRecord) {
+        // Update existing record
         await prisma.pageContent.update({
           where: { id: existingRecord.id },
-          data: { content: String(value) }
+          data: { content: stringValue }
         });
       } else {
+        // Create new record if it doesn't exist
         await prisma.pageContent.create({
-          data: { page: 'home', key: key, content: String(value) }
+          data: { page: 'home', key: key, content: stringValue }
         });
       }
     }
