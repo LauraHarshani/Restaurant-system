@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
+const {
+authenticateToken,
+requireAdmin
+} = require("../middleware/authMiddleware");
+
 const {createMessage,
     getMessages,
     markMessageAsRead,
@@ -13,6 +18,12 @@ const {createMessage,
 //send messages
 router.post("/messages", createMessage);
 
+//get contact details
+router.get("/details", getContactDetails)
+
+// Apply authentication and admin authorization.
+router.use(authenticateToken, requireAdmin);
+
 //get all messages
 router.get("/messages", getMessages)
 
@@ -24,9 +35,6 @@ router.patch("/messages/:id/reply", replyToMessage)
 
 //delete message
 router.delete("/messages/:id", deleteMessage)
-
-//get contact details
-router.get("/details", getContactDetails)
 
 //update contact details
 router.patch('/details', updateContactDetails)
