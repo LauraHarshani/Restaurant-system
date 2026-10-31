@@ -1,6 +1,42 @@
-﻿import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+const DEFAULT_CONTACT_DETAILS = {
+  address: "123 Road, Colombo 03",
+  phone: "+94 11 234 5678",
+  email: "hello@flameandcrust.lk",
+};
 
 const Footer = () => {
+  const [contactDetails, setContactDetails] = useState(DEFAULT_CONTACT_DETAILS);
+
+  useEffect(() => {
+    const fetchContactDetails = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/contact/details`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Unable to load contact details.");
+        }
+
+        if (data.details) {
+          setContactDetails({
+            address: data.details.address || DEFAULT_CONTACT_DETAILS.address,
+            phone: data.details.phone || DEFAULT_CONTACT_DETAILS.phone,
+            email: data.details.email || DEFAULT_CONTACT_DETAILS.email,
+          });
+        }
+      } catch (error) {
+        console.error("Unable to load footer contact details:", error);
+      }
+    };
+
+    fetchContactDetails();
+  }, []);
+
   return (
     <footer className="bg-[#100202] text-white px-6 sm:px-12 pt-14 pb-6 font-sans border-t border-[#222]">
       {/* Top section with 4 columns */}
@@ -54,10 +90,9 @@ const Footer = () => {
         {/* Column 3: Visit Info */}
         <div className="flex flex-col gap-1.5">
           <h4 className="text-sm font-bold tracking-widest text-white mb-2 uppercase">VISIT</h4>
-          <p className="text-sm text-[#b3b3b3] m-0">123 Road</p>
-          <p className="text-sm text-[#b3b3b3] m-0">Colombo 03.</p>
-          <p className="text-sm text-[#b3b3b3] my-2">+94 11 234 5678</p>
-          <p className="text-sm text-[#b3b3b3] m-0">hello@flameandcrust.lk</p>
+          <p className="text-sm text-[#b3b3b3] m-0">{contactDetails.address}</p>
+          <a href={`tel:${contactDetails.phone}`} className="text-sm text-[#b3b3b3] my-2 hover:text-[#ff6b00] transition-colors duration-200">{contactDetails.phone}</a>
+          <a href={`mailto:${contactDetails.email}`} className="text-sm text-[#b3b3b3] m-0 hover:text-[#ff6b00] transition-colors duration-200">{contactDetails.email}</a>
         </div>
 
         {/* Column 4: Follow Us and Timing */}
