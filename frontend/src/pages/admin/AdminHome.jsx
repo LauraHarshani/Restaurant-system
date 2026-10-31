@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, RefreshCw, Upload, Plus, Monitor, Rocket, Image as ImageIcon, SlidersHorizontal, Star, Clock, Flame, ArrowRight, GripHorizontal, Trash2, Camera, FileImage, Eye } from 'lucide-react';
 import heroVideo from '../../assets/hero-video.mp4';
+import { getAdminAuthHeaders } from "../../utils/adminAuth";
 
 const AdminHome = () => {
   const [homeData, setHomeData] = useState({
@@ -122,9 +123,7 @@ const AdminHome = () => {
 
       const response = await fetch('http://localhost:5000/api/content/home', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAdminAuthHeaders(true),
         body: JSON.stringify(payload),
       });
 

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 
 import woodFireVideo from '../../assets/wood-fire_about.mp4';
+import { getAdminAuthHeaders } from "../../utils/adminAuth";
 
 const AdminAbout = () => {
   const [aboutData, setAboutData] = useState({
@@ -154,7 +155,7 @@ const AdminAbout = () => {
     try {
       const response = await fetch('http://localhost:5000/api/content/about', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminAuthHeaders(true),
         body: JSON.stringify({ ...aboutData, videoUrl: selectedVideo }),
       });
 
