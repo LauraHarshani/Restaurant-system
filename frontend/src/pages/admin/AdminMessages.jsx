@@ -14,8 +14,7 @@ import {
 } from "lucide-react";
 
 // Backend API base URL from the frontend environment variables.
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Number of customer messages displayed on each page.
 const PAGE_SIZE = 5;
@@ -64,18 +63,26 @@ function normalizeMessage(message) {
 
 // Reusable API function to handle GET, POST, PATCH and DELETE requests.
 async function requestApi(url, options = {}) {
+  // Retrieve the admin token from localStorage or sessionStorage.
+  const token = localStorage.getItem("adminToken") || sessionStorage.getItem("adminToken");
+
   const response = await fetch(url, {
     ...options,
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+
+      // Attach the JWT token to every admin API request.
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+
+      // Preserve any additional headers.
       ...options.headers,
     },
   });
 
-  // Safely parse the server response.
+  // Parse the backend response.
   const data = await response.json().catch(() => ({}));
 
-  // Display backend errors when a request fails.
+  // Handle authentication and other API errors.
   if (!response.ok) {
     throw new Error(
       data.message || data.error || "The request could not be completed."
@@ -882,11 +889,6 @@ export default function AdminMessages() {
                     {replying ? "Saving..." : "Save Reply"}
                   </button>
                 </div>
-
-                {/* Clarify that replies are stored, not emailed */}
-                <p className="mt-3 text-right text-xs text-gray-400">
-                  Replies are saved to the database. They are not emailed to customers.
-                </p>
               </form>
             </>
           ) : (
