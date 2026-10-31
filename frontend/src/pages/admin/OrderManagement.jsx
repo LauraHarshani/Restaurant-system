@@ -3,6 +3,19 @@ import { Link } from "react-router-dom";
 import { Plus, Download, Search, Printer, RefreshCw } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+// Get the JWT token from the browser storage.
+const getAuthHeaders = (includeJson = false) => {
+  const token =
+    localStorage.getItem("adminToken") ||
+    sessionStorage.getItem("adminToken");
+
+  return {
+    ...(includeJson ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
 const activeStatuses = ["New", "Preparing", "Ready"];
 
 const formatPrice = (price) => `Rs. ${Number(price || 0).toLocaleString("en-LK")}`;
@@ -33,7 +46,10 @@ export default function OrderManagement() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/orders`);
+      const response = await fetch(`${API_URL}/orders`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
       const result = await response.json();
       if (!response.ok || !result.success) {
         throw new Error(result.message || "Unable to load orders.");
@@ -73,11 +89,14 @@ export default function OrderManagement() {
     setUpdating(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/orders/${encodeURIComponent(id)}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
+      const response = await fetch(
+        `${API_URL}/orders/${encodeURIComponent(id)}/status`,
+        {
+          method: "PATCH",
+          headers: getAuthHeaders(true),
+          body: JSON.stringify({ status }),
+        }
+      );
       const result = await response.json();
       if (!response.ok || !result.success) {
         throw new Error(result.message || "Unable to update order status.");
