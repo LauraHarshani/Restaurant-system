@@ -2,6 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Search, Trash2 } from "lucide-react";
 import { useMenu } from "../../context/MenuContext";
+import { getAdminAuthHeaders } from "../../utils/adminAuth";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -27,7 +28,7 @@ export default function CreateOrder() {
     try {
       const response = await fetch(`${API_URL}/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
         body: JSON.stringify({
           customer: customer.name.trim(),
           email: customer.email.trim(),

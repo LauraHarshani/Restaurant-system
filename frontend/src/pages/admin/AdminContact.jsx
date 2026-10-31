@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Save, CheckCircle2 } from "lucide-react";
+import { getAdminAuthHeaders } from "../../utils/adminAuth";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -176,9 +177,7 @@ export default function AdminContact() {
         `${API_BASE_URL}/contact/details`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getAdminAuthHeaders(true),
           body: JSON.stringify({
             email: contact.email.trim(),
             phone: contact.phone.trim(),
