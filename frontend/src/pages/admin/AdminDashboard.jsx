@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   CalendarDays, Download, Plus, ReceiptText, UtensilsCrossed, ChefHat, 
   Mail, MessageSquare, ArrowRight, CornerDownLeft, MonitorSmartphone, 
   Settings, CheckCircle2, RotateCw, Search, ChevronDown, X, Globe, Database, ShieldCheck 
 } from 'lucide-react';
+import { getAdminAuthHeaders } from "../../utils/adminAuth";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -15,6 +18,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showCMSModal, setShowCMSModal] = useState(false);
+  const [fetchError, setFetchError] = useState("");
 
   // Real Database State
   const [dashboardData, setDashboardData] = useState({
@@ -31,26 +35,37 @@ const AdminDashboard = () => {
   // Fetch Live Data from Backend API
   const fetchDashboardData = (isManualRefresh = false) => {
     if (isManualRefresh) setIsRefreshing(true);
-    fetch('http://localhost:5000/api/dashboard/summary')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data) {
-          setDashboardData(data.data);
-        }
-        setLoading(false);
-        if (isManualRefresh) setIsRefreshing(false);
+    fetch(`${API_URL}/dashboard/summary`, {
+        headers: getAdminAuthHeaders(),
       })
-      .catch(err => {
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok || !data.success || !data.data) {
+          throw new Error(data.message || "Unable to load dashboard data.");
+        }
+        return data.data;
+      })
+      .then((data) => {
+        setDashboardData(data);
+        setFetchError("");
+      })
+      .catch((err) => {
         console.error("Error fetching dashboard summary:", err);
+        setFetchError(err.message || "Unable to load dashboard data.");
+      })
+      .finally(() => {
         setLoading(false);
         if (isManualRefresh) setIsRefreshing(false);
       });
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    const initialFetch = setTimeout(() => fetchDashboardData(), 0);
     const interval = setInterval(() => fetchDashboardData(false), 30000); // Auto-sync every 30s
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, []);
 
   const filteredOrders = (dashboardData.recentOrders || []).filter(order => {
@@ -152,6 +167,22 @@ const AdminDashboard = () => {
             </button>
           </div>
         </div>
+
+        {fetchError && (
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            <span>{fetchError}</span>
+            <button
+              onClick={() => fetchDashboardData(true)}
+              disabled={isRefreshing}
+              className="shrink-0 font-semibold underline disabled:opacity-60"
+            >
+              Try again
+            </button>
+          </div>
+        )}
 
         {/* Top Stat Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
