@@ -1,4 +1,4 @@
-import prismaModule from "./prisma.js";
+const prisma = require("./prismaSelector.cjs");
 
-export const prisma = prismaModule;
-export default prismaModule;
+export { prisma };
+export default prisma;
